@@ -1,22 +1,32 @@
+package test;
+
+import lexico.*;
+import util.MyFile;
+
 public class TesteLexico{
 	public static void main( String [] args ){
-		AnalisadorLexico lex = new AnalisadorLexico();
 
+		if( args.length < 1 ){
+			System.out.println("\nNumero de argumentos invalido.\nUse java LC programa.l");
+			System.exit(0);
+		}
+
+		AnalisadorLexico lex = new AnalisadorLexico();
+		
+		MyFile arquivo = new MyFile( args[0] );
 		FilePosition p = new FilePosition(0);
-		//String arquivo = "um_id_qualquer = 5;";
-		//String arquivo = "0; 005h; 005 089483 123456;";
-		//String arquivo = "089483";
-		String arquivo = " 5 + 4-0+058473 = 4; /* é aqui e um comentario, eu posso colocar +--=af--a--s=*/ 6 + 5 = 10 /**/";
+
+		String programa = arquivo.readAll();
 
 		do{
 
-			ResultadoLexico result = lex.getToken(arquivo, p );
+			ResultadoLexico result = lex.getToken(programa, p );
 
 			if( result.getToken() == Tokem.ERROR ){
 				break;
 			}
 
-			System.out.println( result.getLexema()+" = "+result.getToken() );
-		}while( p.filePos < arquivo.length() );
+			System.out.println( result.getLexema()+" : "+result.getToken() );
+		}while( p.filePos < programa.length() );
 	}
 }

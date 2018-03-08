@@ -1,4 +1,12 @@
+package lexico;
+
 public class AnalisadorLexico{
+
+	public boolean isAritimetic( char c ){
+		return(
+			c == '+' || c == '-' || c == '/' || c == '*'
+		);
+	}
 
 	public boolean isLetter( char c ){
 		return(
@@ -18,13 +26,9 @@ public class AnalisadorLexico{
 		);
 	}
 
-	public boolean isSingleChar( char c ){
-		return ( c == '(' || c == ')' || c == ',' || c == '=' );
-	}
-
 	public boolean isPrintable( char c ){
 		// de acordo com a tabela ascii, esses sao os caracteres imprimiveis
-		return( c >= 32 && c <= 126);
+		return( c >= 32 && c <= 255 || c == '\n');
 	}
 
 	public boolean eof( String programa, FilePosition pos ){
@@ -40,7 +44,7 @@ public class AnalisadorLexico{
 		char c;
 		FilePosition pos = initial_position;
 		String lex = "";
-		Tokem token = Tokem.FAZER;
+		Tokem token = Tokem.EOF;
 		do{
 
 			if( eof(programa, pos) ){
@@ -52,10 +56,10 @@ public class AnalisadorLexico{
 				break;
 			}
 			c = programa.charAt( pos.filePos );
-			//System.out.println( c+" "+state );
+			//System.out.println( c+": "+""+(int)c+"" );
 
 			if( isPrintable(c) == false ){
-				System.out.println("CARACTERE INVALIDO!");
+				System.out.println("CARACTERE '"+c+"' INVALIDO! "+(int)c);
 				token = Tokem.ERROR;
 				break;
 			}
@@ -72,41 +76,76 @@ public class AnalisadorLexico{
 							lex += c;
 						}
 
-					}else if( isAritimetic(c) ){ // OLHAR AS 4 OPERACOES BASICAS, / TAMBEM E COMENTARIO
+					}else if( isAritimetic(c) && c != '/' ){
 						state = final_state;
-						token = Tokem.ARITIMETIC_OP;
-						lex += c;
-
-					}else if( isSingleChar(c) ){
-						state = final_state;
-						token = Tokem.FAZER;
+						token = Tokem.OPERATION;
 						lex += c;
 
 					}else if( isLetter(c) ){
 						state = 8;
 						lex += c;
 
-					}else if( c == '>' ){
-						state = 9;
-						lex += c;
+					}else{
 
-					}else if( c == '<' ){
-						state = 10;
-						lex += c;
-					}else if( c == '/' ){
-						state = 11;
-
-					}else if( c == '\''){
-						state = 14;
-						lex += c;
-
-					}else if( c == '"' ){
-						state = 16;
-						lex += c;
+						switch( c ){
+							case '>':
+								state = 9;
+								lex += c;
+								break;
+							case '<':
+								state = 10;
+								lex += c;
+								break;
+							case '/':
+								state = 11;
+								break;
+							case '\'':
+								state = 14;
+								lex += c;
+								break;
+							case '"':
+								state = 16;
+								break;
+							case ';':
+								state = final_state;
+								lex += c;
+								token = Tokem.SEMICOLON;
+								break;
+							case '(':
+								state = final_state;
+								lex += c;
+								token = Tokem.OPEN_PARENTHESIS;
+								break;
+							case ')':
+								state = final_state;
+								lex += c;
+								token = Tokem.CLOSE_PARENTHESIS;
+								break;
+							case '[':
+								state = final_state;
+								lex += c;
+								token = Tokem.CLOSE_PARENTHESIS;
+								break;
+							case ']':
+								state = final_state;
+								lex += c;
+								token = Tokem.CLOSE_BRACKET;
+								break;
+							case ',':
+								state = final_state;
+								lex += c;
+								token = Tokem.COMMA;
+								break;
+							case '=':
+								state= final_state;
+								lex += c;
+								token = Tokem.EQUAL;
+								break;
+						}
 
 					}
-
 					break;
+
 				case 1:
 
 					if( isDigit(c) ){
@@ -117,7 +156,7 @@ public class AnalisadorLexico{
 						lex += c;
 					}else{
 						state = final_state;
-						token = Tokem.INT;
+						token = Tokem.CONST;
 						pos.filePos--; // devolve c
 					}
 
@@ -131,19 +170,19 @@ public class AnalisadorLexico{
 						lex += c;
 					}else{
 						state = final_state;
-						token = Tokem.INT;
+						token = Tokem.CONST;
 						pos.filePos--; // devolve c
 					}
 
 					break;
-				case 3: // ELE PODE RECEBER 0A90345345374, olhar transicao de 5 para 3
+				case 3:
 					if( isDigit(c) ){
 						state = 7;
 						lex += c;
 					}else{
 						if( c == 'h' ){
 							lex += c;
-							token = Tokem.CHAR;
+							token = Tokem.CONST;
 						}else{
 							pos.filePos--; // devolve c
 						}
@@ -154,13 +193,12 @@ public class AnalisadorLexico{
 					break;
 				case 5:
 
-					// OLHAR ESSE IF
-					if( isDigit(c) ){
-						state = 3;
-						lex += c;
-					}else if( isHexLetter(c) ){
+					if( isDigit(c) || isHexLetter(c) ){
 						state = 6;
 						lex += c;
+					}else{
+						System.out.println("CONSTANTE INVALIDA!");
+						token = Tokem.ERROR;
 					}
 
 					break;
@@ -168,7 +206,11 @@ public class AnalisadorLexico{
 					if( c == 'h' ){
 						state = final_state;
 						lex += c;
-						token = Tokem.CHAR;
+						token = Tokem.CONST;
+					}else{
+						System.out.println("CONSTANTE INVALIDA!");
+						token = Tokem.ERROR;
+						break;
 					}
 
 					break;
@@ -177,7 +219,7 @@ public class AnalisadorLexico{
 						lex += c;
 					}else{
 						state = final_state;
-						token = Tokem.INT;
+						token = Tokem.CONST;
 						pos.filePos--; // devolve c
 					}
 
@@ -200,18 +242,18 @@ public class AnalisadorLexico{
 					}
 
 					state = final_state;
-					token = Tokem.BOOL_OP;
+					token = Tokem.OPERATION;
 
 					break;
 				case 10:
 					if( c == '>' || c == '=' ){
-						token = Tokem.BOOL_OP;
+						token = Tokem.OPERATION;
 						lex += c;
 					}else if( c == '-' ){
 						token = Tokem.ATTR;
 						lex += c;
 					}else{
-						token = Tokem.BOOL_OP;
+						token = Tokem.OPERATION;
 						pos.filePos--; // devolve c
 					}
 
@@ -221,6 +263,10 @@ public class AnalisadorLexico{
 				case 11:
 					if( c == '*' ){
 						state = 12;
+					}else{
+						state = final_state;
+						token = Tokem.OPERATION;
+						pos.filePos--; // devolve c
 					}
 
 					break;
@@ -246,14 +292,14 @@ public class AnalisadorLexico{
 				case 15:
 					if( c == '\'' ){
 						state = final_state;
-						token = Tokem.CHAR;
+						token = Tokem.CONST;
 					}
 
 					break;
 				case 16:
 					if( c == '"' ){
 						state = final_state;
-						token = Tokem.STRING;
+						token = Tokem.CONST;
 					}else{
 						lex += c;
 					}
@@ -262,7 +308,7 @@ public class AnalisadorLexico{
 
 			pos.filePos++;
 
-		}while( state != final_state );
+		}while( token != Tokem.ERROR && state != final_state );
 
 		return(  new ResultadoLexico( token, lex ) );
 	}
