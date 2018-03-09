@@ -56,7 +56,6 @@ public class AnalisadorLexico{
 				break;
 			}
 			c = programa.charAt( pos.filePos );
-			//System.out.println( c+": "+""+(int)c+"" );
 
 			if( isPrintable(c) == false ){
 				System.out.println("CARACTERE '"+c+"' INVALIDO! "+(int)c);
@@ -81,12 +80,17 @@ public class AnalisadorLexico{
 							case '+':
 								lex += c;
 								token = Token.SUM;
+								state = final_state;
 								break;
 							case '-':
+								lex += c;
 								token = Token.MINUS;
+								state = final_state;
 								break;
 							case '*':
+								lex += c;
 								token = Token.MULTIPLY;
+								state = final_state;
 								break;
 						}
 
@@ -110,7 +114,6 @@ public class AnalisadorLexico{
 								break;
 							case '\'':
 								state = 14;
-								lex += c;
 								break;
 							case '"':
 								state = 16;
@@ -171,7 +174,7 @@ public class AnalisadorLexico{
 					}else if( isHexLetter(c) ){
 						state = 5;
 						lex += c;
-					}else if( c == '(' || c == ')' || c == ' ' || c == '\n' || c == ',' || c == ';' || isAritimetic(c) ) {
+					}else if( c == '(' || c == ')' || c == '[' || c == ']' || c == ' ' || c == '\n' || c == ',' || c == ';' || isAritimetic(c) ) {
 						token = Token.CONST;
 						pos.filePos--; // devolve c
 						state = final_state;
@@ -188,7 +191,7 @@ public class AnalisadorLexico{
 					}else if( isHexLetter(c) ){
 						state = 6;
 						lex += c;
-					}else if( c == '(' || c == ')' || c == ' ' || c == '\n' || c == ',' || c == ';' || isAritimetic(c) ){
+					}else if( c == '(' || c == ')' || c == '[' || c == ']' || c == ' ' || c == '\n' || c == ',' || c == ';' || isAritimetic(c) ){
 						state = final_state;
 						token = Token.CONST;
 						pos.filePos--; // devolve c
@@ -207,7 +210,7 @@ public class AnalisadorLexico{
 						if( c == 'h' ) {
 							token = Token.CONST;
 							state = final_state;
-						}else if( c == '(' || c == ')' || c == ' ' || c == '\n' || c == ',' || c == ';' || isAritimetic(c) ) {
+						}else if( c == '(' || c == ')' || c == '[' || c == ']' || c == ' ' || c == '\n' || c == ',' || c == ';' || isAritimetic(c) ) {
 							token = Token.CONST;
 							pos.filePos--; // devolve c
 							state = final_state;
@@ -244,7 +247,7 @@ public class AnalisadorLexico{
 				case 7:
 					if( isDigit(c) ){
 						lex += c;
-					}else if( c == '(' || c == ')' || c == ' ' || c == '\n' || c == ',' || c == ';' || isAritimetic(c) ){
+					}else if( c == '(' || c == ')' || c == '[' || c == ']' || c == ' ' || c == '\n' || c == ',' || c == ';' || isAritimetic(c) ){
 						state = final_state;
 						token = Token.CONST;
 						pos.filePos--; // devolve c
@@ -344,6 +347,12 @@ public class AnalisadorLexico{
 			pos.filePos++;
 
 		}while( token != Token.ERROR && state != final_state );
+		
+		// Adiciona lexema na tabela de simbolos
+		if( token != Token.ERROR ) {
+			TabelaSimbolos tabelaSimbolos = null;
+			tabelaSimbolos.getInstance().add( lex, token );
+		}
 
 		return(  new ResultadoLexico( token, lex ) );
 	}
