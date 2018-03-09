@@ -44,14 +44,14 @@ public class AnalisadorLexico{
 		char c;
 		FilePosition pos = initial_position;
 		String lex = "";
-		Tokem token = Tokem.EOF;
+		byte token = Token.EOF;
 		do{
 
 			if( eof(programa, pos) ){
 	
 				if( state != 0 ){
 					System.out.println("FIM DE ARQUIVO INESPERADO");
-					token = Tokem.ERROR;
+					token = Token.ERROR;
 				}
 				break;
 			}
@@ -60,7 +60,7 @@ public class AnalisadorLexico{
 
 			if( isPrintable(c) == false ){
 				System.out.println("CARACTERE '"+c+"' INVALIDO! "+(int)c);
-				token = Tokem.ERROR;
+				token = Token.ERROR;
 				break;
 			}
 			
@@ -75,11 +75,20 @@ public class AnalisadorLexico{
 							state = 7;
 							lex += c;
 						}
-
-					}else if( isAritimetic(c) && c != '/' ){
-						state = final_state;
-						token = Tokem.OPERATION;
-						lex += c;
+					}else if( isAritimetic(c) ){
+						
+						switch( c ) {
+							case '+':
+								lex += c;
+								token = Token.SUM;
+								break;
+							case '-':
+								token = Token.MINUS;
+								break;
+							case '*':
+								token = Token.MULTIPLY;
+								break;
+						}
 
 					}else if( isLetter(c) ){
 						state = 8;
@@ -109,37 +118,45 @@ public class AnalisadorLexico{
 							case ';':
 								state = final_state;
 								lex += c;
-								token = Tokem.SEMICOLON;
+								token = Token.SEMICOLON;
 								break;
 							case '(':
 								state = final_state;
 								lex += c;
-								token = Tokem.OPEN_PARENTHESIS;
+								token = Token.OPEN_PARENTHESIS;
 								break;
 							case ')':
 								state = final_state;
 								lex += c;
-								token = Tokem.CLOSE_PARENTHESIS;
+								token = Token.CLOSE_PARENTHESIS;
 								break;
 							case '[':
 								state = final_state;
 								lex += c;
-								token = Tokem.CLOSE_PARENTHESIS;
+								token = Token.CLOSE_PARENTHESIS;
 								break;
 							case ']':
 								state = final_state;
 								lex += c;
-								token = Tokem.CLOSE_BRACKET;
+								token = Token.CLOSE_BRACKET;
 								break;
 							case ',':
 								state = final_state;
 								lex += c;
-								token = Tokem.COMMA;
+								token = Token.COMMA;
 								break;
 							case '=':
 								state= final_state;
 								lex += c;
-								token = Tokem.EQUAL;
+								token = Token.EQUAL;
+								break;
+							case ' ':
+								break;
+							case '\n':
+								break;
+							default:
+								System.out.println("CARACTERE NAO ESPERADO! ");
+								token = Token.ERROR;
 								break;
 						}
 
@@ -154,10 +171,13 @@ public class AnalisadorLexico{
 					}else if( isHexLetter(c) ){
 						state = 5;
 						lex += c;
-					}else{
-						state = final_state;
-						token = Tokem.CONST;
+					}else if( c == '(' || c == ')' || c == ' ' || c == '\n' || c == ',' || c == ';' || isAritimetic(c) ) {
+						token = Token.CONST;
 						pos.filePos--; // devolve c
+						state = final_state;
+					}else {
+						System.out.println("CONSTANTE "+(lex+c)+" INVALIDA");
+						token = Token.ERROR;
 					}
 
 					break;
@@ -168,10 +188,13 @@ public class AnalisadorLexico{
 					}else if( isHexLetter(c) ){
 						state = 6;
 						lex += c;
-					}else{
+					}else if( c == '(' || c == ')' || c == ' ' || c == '\n' || c == ',' || c == ';' || isAritimetic(c) ){
 						state = final_state;
-						token = Tokem.CONST;
+						token = Token.CONST;
 						pos.filePos--; // devolve c
+					}else {
+						System.out.println("CONSTANTE "+(lex+c)+" INVALIDA! " );
+						token = Token.ERROR;
 					}
 
 					break;
@@ -180,14 +203,18 @@ public class AnalisadorLexico{
 						state = 7;
 						lex += c;
 					}else{
-						if( c == 'h' ){
-							lex += c;
-							token = Tokem.CONST;
-						}else{
+						
+						if( c == 'h' ) {
+							token = Token.CONST;
+							state = final_state;
+						}else if( c == '(' || c == ')' || c == ' ' || c == '\n' || c == ',' || c == ';' || isAritimetic(c) ) {
+							token = Token.CONST;
 							pos.filePos--; // devolve c
+							state = final_state;
+						}else {
+							System.out.println("CONSTANTE "+(lex+c)+" INVALIDA");
+							token = Token.ERROR;
 						}
-
-						state = final_state;
 					}
 
 					break;
@@ -197,8 +224,8 @@ public class AnalisadorLexico{
 						state = 6;
 						lex += c;
 					}else{
-						System.out.println("CONSTANTE INVALIDA!");
-						token = Tokem.ERROR;
+						System.out.println("CONSTANTE "+(lex+c)+" INVALIDA! ");
+						token = Token.ERROR;
 					}
 
 					break;
@@ -206,10 +233,10 @@ public class AnalisadorLexico{
 					if( c == 'h' ){
 						state = final_state;
 						lex += c;
-						token = Tokem.CONST;
+						token = Token.CONST;
 					}else{
-						System.out.println("CONSTANTE INVALIDA!");
-						token = Tokem.ERROR;
+						System.out.println("CONSTANTE "+(lex+c)+" INVALIDA!");
+						token = Token.ERROR;
 						break;
 					}
 
@@ -217,10 +244,13 @@ public class AnalisadorLexico{
 				case 7:
 					if( isDigit(c) ){
 						lex += c;
-					}else{
+					}else if( c == '(' || c == ')' || c == ' ' || c == '\n' || c == ',' || c == ';' || isAritimetic(c) ){
 						state = final_state;
-						token = Tokem.CONST;
+						token = Token.CONST;
 						pos.filePos--; // devolve c
+					}else {
+						System.out.println("CONSTANTE "+(lex+c)+" INVALIDA!");
+						token = Token.ERROR;
 					}
 
 					break;
@@ -229,7 +259,7 @@ public class AnalisadorLexico{
 						lex += c;
 					}else{
 						state = final_state;
-						token = Tokem.ID;
+						token = Token.ID;
 						pos.filePos--; // devolve c
 					}
 
@@ -242,18 +272,20 @@ public class AnalisadorLexico{
 					}
 
 					state = final_state;
-					token = Tokem.OPERATION;
+					token = Token.EQUAL;
 
 					break;
 				case 10:
-					if( c == '>' || c == '=' ){
-						token = Tokem.OPERATION;
+					if( c == '>' ){
+						token = Token.DIFFERENT;
 						lex += c;
+					}else if( c == '=' ) {
+						token = Token.LESS_EQUALS;
 					}else if( c == '-' ){
-						token = Tokem.ATTR;
+						token = Token.ATTR;
 						lex += c;
 					}else{
-						token = Tokem.OPERATION;
+						token = Token.LESS;
 						pos.filePos--; // devolve c
 					}
 
@@ -265,7 +297,7 @@ public class AnalisadorLexico{
 						state = 12;
 					}else{
 						state = final_state;
-						token = Tokem.OPERATION;
+						token = Token.DIVIDE;
 						pos.filePos--; // devolve c
 					}
 
@@ -292,14 +324,17 @@ public class AnalisadorLexico{
 				case 15:
 					if( c == '\'' ){
 						state = final_state;
-						token = Tokem.CONST;
+						token = Token.CONST;
+					}else {
+						System.out.println("CONSTANTE "+(lex+c)+" INVALIDA!");
+						token = Token.ERROR;
 					}
 
 					break;
 				case 16:
 					if( c == '"' ){
 						state = final_state;
-						token = Tokem.CONST;
+						token = Token.CONST;
 					}else{
 						lex += c;
 					}
@@ -308,7 +343,7 @@ public class AnalisadorLexico{
 
 			pos.filePos++;
 
-		}while( token != Tokem.ERROR && state != final_state );
+		}while( token != Token.ERROR && state != final_state );
 
 		return(  new ResultadoLexico( token, lex ) );
 	}

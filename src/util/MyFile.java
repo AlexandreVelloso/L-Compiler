@@ -16,9 +16,16 @@ public class MyFile{
         }
     }
 
+    public String readLine( ) {
+    	if( sc.hasNext() ) {
+    		return sc.nextLine();
+    	}else {
+    		return null;
+    	}
+    }
+    
     public String readAll( ){
         String allFile = "";
-        String line;
 
         while( sc.hasNext() ){
             allFile += sc.nextLine()+'\n';
