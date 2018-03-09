@@ -1,6 +1,6 @@
-S -> {D|C} {B}
+S -> {V|C} {B}
 
-D -> (int|char) (id | id "["EXP"]") [I] {( ,id | ,id"["EXP"]") [I]};
+V -> (int|char) id[ "["EXP"]" ] [I] { ,id[ "["EXP"]" ] [I] };
 I -> id <- EXP
 C -> final id = [+|-] const;
 
