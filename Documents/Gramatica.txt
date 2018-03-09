@@ -1,0 +1,13 @@
+S -> {D|C} {B}
+
+D -> (int|char) (id | id "["EXP"]") [I] {( ,id | ,id"["EXP"]") [I]};
+I -> id <- EXP
+C -> final id = [+|-] const;
+
+B   -> { ( for id <- EXP to EXP step const do CMD ) | ( if EXP then CMD ) | ( if EXP then CMD else CMD ) | ( if EXP then begin CMD end else begin CMD end ) }
+CMD -> ;B | readln(id);B | write( EXP{ ,EXP } );B | writeln( EXP{ ,EXP } );B | B
+
+EXP  -> EXPS[ (<|>|<=|>=|=|<>)EXPS ]
+EXPS -> [+|-] T{ (+|-|or)T }
+T    -> F{ (*|/|%|and)F }
+F    -> "("EXP")" | not F | const | id[ "["EXP"]" ]
