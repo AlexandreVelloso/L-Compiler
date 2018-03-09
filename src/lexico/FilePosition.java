@@ -1,3 +1,5 @@
+package lexico;
+
 public final class FilePosition{
 	public int filePos;
 
