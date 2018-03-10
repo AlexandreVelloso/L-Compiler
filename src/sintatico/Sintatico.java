@@ -4,6 +4,7 @@ import lexico.Lexico;
 import lexico.ResultadoLexico;
 import lexico.TabelaSimbolos;
 import lexico.Token;
+import util.FilePosition;
 
 public class Sintatico {
 	
@@ -12,6 +13,8 @@ public class Sintatico {
 	public static Token readToken() {
 		ResultadoLexico result = Lexico.getToken();
 
+		//System.out.println( "lex: "+result.getLexema()+" tok: "+result.getToken()+" linha: "+result.getLine() );
+		
 		return result.getToken();
 	}
 
@@ -27,7 +30,7 @@ public class Sintatico {
 	}
 	
 	public static void error() {
-		System.out.println("ERRO! TOKEN "+token+" INESPERADO!");
+		System.out.println( "ERRO! TOKEN "+token+" INESPERADO! NA LINHA "+FilePosition.getInstance().getLine() );
 		System.exit(0);
 	}
 
@@ -156,10 +159,10 @@ public class Sintatico {
 		
 		if( token == Token.BEGIN ) {
 			casaToken(Token.BEGIN);
-			CMD();
+			COMANDO();
 			casaToken(Token.END);
 		}else {
-			CMD();
+			COMANDO();
 		}
 	}
 	
