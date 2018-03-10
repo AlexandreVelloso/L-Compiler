@@ -7,7 +7,7 @@ CONSTANTE -> final id = [+|-] const;
 COMANDO -> { (for id <- EXP to EXP [step const] do BLOCO) | (if EXP then BLOCO [else BLOCO] ) | CMD }
 BLOCO -> begin COMANDO end | COMANDO
 
-CMD -> { ; | readln(id); | write(EXP {,EXP}); | writeln( EXP{ ,EXP } ); | ATRIBUICAO; }+
+CMD -> { ; | readln( id[ "["EXP"]" ] ); | write(EXP {,EXP}); | writeln( EXP{ ,EXP } ); | ATRIBUICAO; }+
 
 EXP  -> EXPS[ (<|>|<=|>=|=|<>)EXPS ]
 EXPS -> [+|-] T{ (+|-|or)T }

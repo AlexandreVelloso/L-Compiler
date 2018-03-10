@@ -174,6 +174,13 @@ public class Sintatico {
 				casaToken(Token.READLN);
 				casaToken(Token.OPEN_PARENTHESIS);
 				casaToken(Token.ID);
+				
+				if( token == Token.OPEN_BRACKET ) {
+					casaToken(Token.OPEN_BRACKET);
+					EXP();
+					casaToken(Token.CLOSE_BRACKET);
+				}
+				
 				casaToken(Token.CLOSE_PARENTHESIS);
 			}else if( token == Token.WRITE ) {
 				casaToken(Token.WRITE);
