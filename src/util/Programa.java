@@ -7,7 +7,7 @@ public class Programa {
 	private static String program = null;
 	
 	private Programa() {
-		position = new FilePosition(0);
+		position = FilePosition.getInstance();
 	}
 	
 	public void readProgram( String file ) {

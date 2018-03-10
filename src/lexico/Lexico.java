@@ -35,7 +35,7 @@ public class Lexico{
 	}
 
 	public static boolean eof( String programa, FilePosition pos ){
-		return( pos.filePos == programa.length() );
+		return( FilePosition.getInstance().getFilePos() == programa.length() );
 	}
 	
 	public static ResultadoLexico getToken( ){
@@ -60,12 +60,16 @@ public class Lexico{
 				}
 				break;
 			}
-			c = programa.charAt( pos.filePos );
+			c = programa.charAt( pos.getFilePos() );
 
 			if( isPrintable(c) == false ){
 				System.out.println("ERRO LEXICO - CARACTERE '"+c+"' INVALIDO! "+(int)c);
 				System.exit(0);
 				break;
+			}
+			
+			if( c == '\n' ) {
+				pos.sumLine();
 			}
 			
 			switch( state ){
@@ -182,7 +186,7 @@ public class Lexico{
 						lex += c;
 					}else if( c == '(' || c == ')' || c == '[' || c == ']' || c == ' ' || c == '\n' || c == ',' || c == ';' || isAritimetic(c) ) {
 						token = Token.CONST;
-						pos.filePos--; // devolve c
+						pos.devolveChar();
 						state = final_state;
 					}else {
 						System.out.println("ERRO LEXICO - CONSTANTE "+(lex+c)+" INVALIDA");
@@ -200,7 +204,7 @@ public class Lexico{
 					}else if( c == '(' || c == ')' || c == '[' || c == ']' || c == ' ' || c == '\n' || c == ',' || c == ';' || isAritimetic(c) ){
 						state = final_state;
 						token = Token.CONST;
-						pos.filePos--; // devolve c
+						pos.devolveChar();
 					}else {
 						System.out.println("ERRO LEXICO - CONSTANTE "+(lex+c)+" INVALIDA! " );
 						System.exit(0);
@@ -218,7 +222,7 @@ public class Lexico{
 							state = final_state;
 						}else if( c == '(' || c == ')' || c == '[' || c == ']' || c == ' ' || c == '\n' || c == ',' || c == ';' || isAritimetic(c) ) {
 							token = Token.CONST;
-							pos.filePos--; // devolve c
+							pos.devolveChar();
 							state = final_state;
 						}else {
 							System.out.println("ERRO LEXICO - CONSTANTE "+(lex+c)+" INVALIDA");
@@ -256,7 +260,7 @@ public class Lexico{
 					}else if( c == '(' || c == ')' || c == '[' || c == ']' || c == ' ' || c == '\n' || c == ',' || c == ';' || isAritimetic(c) ){
 						state = final_state;
 						token = Token.CONST;
-						pos.filePos--; // devolve c
+						pos.devolveChar();
 					}else {
 						System.out.println("ERRO LEXICO - CONSTANTE "+(lex+c)+" INVALIDA!");
 						System.exit(0);
@@ -269,7 +273,7 @@ public class Lexico{
 					}else{
 						state = final_state;
 						token = Token.ID;
-						pos.filePos--; // devolve c
+						pos.devolveChar();
 					}
 
 					break;
@@ -277,7 +281,7 @@ public class Lexico{
 					if( c == '=' ){
 						lex += c;
 					}else{
-						pos.filePos--; // devolve c
+						pos.devolveChar();
 					}
 
 					state = final_state;
@@ -295,7 +299,7 @@ public class Lexico{
 						lex += c;
 					}else{
 						token = Token.LESS;
-						pos.filePos--; // devolve c
+						pos.devolveChar();
 					}
 
 					state = final_state;
@@ -308,7 +312,7 @@ public class Lexico{
 					}else{
 						state = final_state;
 						token = Token.DIVIDE;
-						pos.filePos--; // devolve c
+						pos.devolveChar();
 					}
 
 					break;
@@ -351,7 +355,7 @@ public class Lexico{
 					break;
 			}
 
-			pos.filePos++;
+			pos.nextPos();
 
 		}while( state != final_state );
 		
@@ -360,6 +364,6 @@ public class Lexico{
 		// Adiciona lexema na tabela de simbolos
 		tabela.add( lex, token );
 		
-		return( new ResultadoLexico( tabela.getToken(lex), lex ) );
+		return( new ResultadoLexico( tabela.getToken(lex), lex, pos.getLine() ) );
 	}
 }
