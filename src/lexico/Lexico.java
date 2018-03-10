@@ -167,8 +167,13 @@ public class Lexico{
 								break;
 							case '\n':
 								break;
+							case '%':
+								state = final_state;
+								lex += c;
+								token = Token.MOD;
+								break;
 							default:
-								System.out.println("ERRO LEXICO - CARACTERE NAO ESPERADO! ");
+								System.out.println("ERRO LEXICO - CARACTERE INVALIDO! ");
 								token = Token.ERROR;
 								break;
 						}
