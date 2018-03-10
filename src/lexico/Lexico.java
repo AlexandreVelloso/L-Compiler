@@ -1,48 +1,53 @@
 package lexico;
 
-public class AnalisadorLexico{
+import util.FilePosition;
+import util.Programa;
 
-	public boolean isAritimetic( char c ){
+public class Lexico{
+
+	public static boolean isAritimetic( char c ){
 		return(
 			c == '+' || c == '-' || c == '/' || c == '*'
 		);
 	}
 
-	public boolean isLetter( char c ){
+	public static boolean isLetter( char c ){
 		return(
 			( c >= 'a' && c <= 'z' ) ||
 			( c >= 'A' && c <= 'Z' )
 		);
 	}
 	
-	public boolean isDigit( char c ){
+	public static boolean isDigit( char c ){
 		return ( c >= '0' && c <= '9' );
 	}
 
-	public boolean isHexLetter( char c ){
+	public static boolean isHexLetter( char c ){
 		return( 
 			(c >= 'a' && c <= 'f') ||
 			(c >= 'A' && c <= 'F')
 		);
 	}
 
-	public boolean isPrintable( char c ){
+	public static boolean isPrintable( char c ){
 		// de acordo com a tabela ascii, esses sao os caracteres imprimiveis
 		return( c >= 32 && c <= 255 || c == '\n');
 	}
 
-	public boolean eof( String programa, FilePosition pos ){
+	public static boolean eof( String programa, FilePosition pos ){
 		return( pos.filePos == programa.length() );
 	}
 	
-	public ResultadoLexico getToken( String programa, FilePosition initial_position ){
+	public static ResultadoLexico getToken( ){
 
 		final int initial_state = 0;
 		final int final_state = 4;
+		
+		String programa = Programa.getInstance().getProgram();
+		FilePosition pos = Programa.getInstance().getPosition();
 
 		int state = initial_state;
 		char c;
-		FilePosition pos = initial_position;
 		String lex = "";
 		byte token = Token.EOF;
 		do{
