@@ -116,6 +116,7 @@ public class Lexico{
 								break;
 							case '/':
 								state = 11;
+								lex += c;
 								break;
 							case '\'':
 								state = 14;
@@ -303,6 +304,7 @@ public class Lexico{
 				case 11:
 					if( c == '*' ){
 						state = 12;
+						lex = "";
 					}else{
 						state = final_state;
 						token = Token.DIVIDE;
