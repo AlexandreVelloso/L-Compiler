@@ -3,7 +3,7 @@ package lexico;
 import java.util.HashMap;
 
 public class TabelaSimbolos {
-	private HashMap<String, Byte> tabela = new HashMap<>();
+	private HashMap<String, Token> tabela = new HashMap<>();
 	private static TabelaSimbolos instancia;
 	
  	private TabelaSimbolos() {
@@ -34,7 +34,7 @@ public class TabelaSimbolos {
 		tabela.put( "[", Token.OPEN_BRACKET );
 		tabela.put( "(", Token.OPEN_PARENTHESIS );
 		tabela.put( "or", Token.OR );
-		tabela.put( "%", Token.PERCENTAGE );
+		tabela.put( "%", Token.MOD );
 		tabela.put( "readln", Token.READLN );
 		tabela.put( ";", Token.SEMICOLON );
 		tabela.put( "step", Token.STEP );
@@ -54,17 +54,14 @@ public class TabelaSimbolos {
 		return instancia;
 	}
 	
-	public void add( String key, byte value ) {
-		
-		System.out.println("?"+this.tabela.containsKey(key));
-		System.out.println("ue "+this.tabela.get("int") );
+	public void add( String key, Token value ) {
 		
 		if( this.tabela.containsKey( key ) == false ) {
 			this.tabela.put( key, value );
 		}
 	}
 	
-	public byte getToken( String lex ) {
+	public Token getToken( String lex ) {
 		return this.tabela.get( lex );
 	}
 	

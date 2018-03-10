@@ -49,7 +49,7 @@ public class Lexico{
 		int state = initial_state;
 		char c;
 		String lex = "";
-		byte token = Token.EOF;
+		Token token = Token.EOF;
 		do{
 
 			if( eof(programa, pos) ){
