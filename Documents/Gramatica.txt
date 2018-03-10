@@ -4,7 +4,7 @@ VARIAVEL -> (int|char) id[ "["EXP"]" ] [ATRIBUICAO] { ,id[ "["EXP"]" ] [ATRIBUIC
 ATRIBUICAO -> <- EXP
 CONSTANTE -> final id = [+|-] const;
 
-COMANDO -> { (for id <- EXP to EXP step const do BLOCO) | (if EXP then BLOCO [else BLOCO] ) | CMD }
+COMANDO -> { (for id <- EXP to EXP [step const] do BLOCO) | (if EXP then BLOCO [else BLOCO] ) | CMD }
 BLOCO -> begin CMD end | CMD
 
 CMD -> { ; | readln(id); | write(EXP {,EXP}); | writeln( EXP{ ,EXP } ); | ATRIBUICAO; }+
