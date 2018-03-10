@@ -33,5 +33,9 @@ public class MyFile{
         
         return allFile;
     }
+    
+    public void close() {
+    	sc.close();
+    }
 
 }
