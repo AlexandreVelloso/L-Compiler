@@ -79,7 +79,7 @@ public class Lexico{
 							state = 7;
 							lex += c;
 						}
-					}else if( isAritimetic(c) ){
+					}else if( isAritimetic(c) && c != '/' ){
 						
 						switch( c ) {
 							case '+':
