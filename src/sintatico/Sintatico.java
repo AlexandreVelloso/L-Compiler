@@ -124,8 +124,12 @@ public class Sintatico {
 				EXP();
 				casaToken(Token.TO);
 				EXP();
-				casaToken(Token.STEP);
-				casaToken(Token.CONST);
+				
+				if( token == Token.STEP ) {
+					casaToken(Token.STEP);
+					casaToken(Token.CONST);
+				}
+				
 				casaToken(Token.DO);
 				BLOCO();
 				
