@@ -1,11 +1,13 @@
-S -> {V|C} {B}
+S -> {VARIAVEL|CONSTANTE} {Comando}
 
-V -> (int|char) id[ "["EXP"]" ] [I] { ,id[ "["EXP"]" ] [I] };
-I -> id <- EXP
-C -> final id = [+|-] const;
+VARIAVEL -> (int|char) id[ "["EXP"]" ] [ATRIBUICAO] { ,id[ "["EXP"]" ] [ATRIBUICAO] };
+ATRIBUICAO -> id <- EXP
+CONSTANTE -> final id = [+|-] const;
 
-B   -> { ( for id <- EXP to EXP step const do CMD ) | ( if EXP then CMD ) | ( if EXP then CMD else CMD ) | ( if EXP then begin CMD end else begin CMD end ) }
-CMD -> ;B | readln(id);B | write( EXP{ ,EXP } );B | writeln( EXP{ ,EXP } );B | B
+Comando -> { (for id <- EXP to EXP step const do BLOCO) | (if EXP then BLOCO [else BLOCO] ) | CMD }
+BLOCO -> begin CMD end | CMD
+
+CMD -> { ; | readln(id); | write(EXP {,EXP}); | writeln( EXP{ ,EXP } ); | ATRIBUICAO; }+
 
 EXP  -> EXPS[ (<|>|<=|>=|=|<>)EXPS ]
 EXPS -> [+|-] T{ (+|-|or)T }
