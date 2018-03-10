@@ -49,22 +49,22 @@ public class Lexico{
 		int state = initial_state;
 		char c;
 		String lex = "";
-		byte token = Token.EOF;
+		Token token = Token.EOF;
 		do{
 
 			if( eof(programa, pos) ){
 	
 				if( state != 0 ){
-					System.out.println("FIM DE ARQUIVO INESPERADO");
-					token = Token.ERROR;
+					System.out.println("ERRO LEXICO - FIM DE ARQUIVO INESPERADO!");
+					System.exit(0);
 				}
 				break;
 			}
 			c = programa.charAt( pos.filePos );
 
 			if( isPrintable(c) == false ){
-				System.out.println("CARACTERE '"+c+"' INVALIDO! "+(int)c);
-				token = Token.ERROR;
+				System.out.println("ERRO LEXICO - CARACTERE '"+c+"' INVALIDO! "+(int)c);
+				System.exit(0);
 				break;
 			}
 			
@@ -79,7 +79,7 @@ public class Lexico{
 							state = 7;
 							lex += c;
 						}
-					}else if( isAritimetic(c) ){
+					}else if( isAritimetic(c) && c != '/' ){
 						
 						switch( c ) {
 							case '+':
@@ -116,6 +116,7 @@ public class Lexico{
 								break;
 							case '/':
 								state = 11;
+								lex += c;
 								break;
 							case '\'':
 								state = 14;
@@ -163,7 +164,7 @@ public class Lexico{
 							case '\n':
 								break;
 							default:
-								System.out.println("CARACTERE NAO ESPERADO! ");
+								System.out.println("ERRO LEXICO - CARACTERE NAO ESPERADO! ");
 								token = Token.ERROR;
 								break;
 						}
@@ -184,8 +185,8 @@ public class Lexico{
 						pos.filePos--; // devolve c
 						state = final_state;
 					}else {
-						System.out.println("CONSTANTE "+(lex+c)+" INVALIDA");
-						token = Token.ERROR;
+						System.out.println("ERRO LEXICO - CONSTANTE "+(lex+c)+" INVALIDA");
+						System.exit(0);
 					}
 
 					break;
@@ -201,8 +202,8 @@ public class Lexico{
 						token = Token.CONST;
 						pos.filePos--; // devolve c
 					}else {
-						System.out.println("CONSTANTE "+(lex+c)+" INVALIDA! " );
-						token = Token.ERROR;
+						System.out.println("ERRO LEXICO - CONSTANTE "+(lex+c)+" INVALIDA! " );
+						System.exit(0);
 					}
 
 					break;
@@ -220,8 +221,8 @@ public class Lexico{
 							pos.filePos--; // devolve c
 							state = final_state;
 						}else {
-							System.out.println("CONSTANTE "+(lex+c)+" INVALIDA");
-							token = Token.ERROR;
+							System.out.println("ERRO LEXICO - CONSTANTE "+(lex+c)+" INVALIDA");
+							System.exit(0);
 						}
 					}
 
@@ -232,8 +233,8 @@ public class Lexico{
 						state = 6;
 						lex += c;
 					}else{
-						System.out.println("CONSTANTE "+(lex+c)+" INVALIDA! ");
-						token = Token.ERROR;
+						System.out.println("ERRO LEXICO - CONSTANTE "+(lex+c)+" INVALIDA! ");
+						System.exit(0);
 					}
 
 					break;
@@ -243,8 +244,8 @@ public class Lexico{
 						lex += c;
 						token = Token.CONST;
 					}else{
-						System.out.println("CONSTANTE "+(lex+c)+" INVALIDA!");
-						token = Token.ERROR;
+						System.out.println("ERRO LEXICO - CONSTANTE "+(lex+c)+" INVALIDA!");
+						System.exit(0);
 						break;
 					}
 
@@ -257,8 +258,8 @@ public class Lexico{
 						token = Token.CONST;
 						pos.filePos--; // devolve c
 					}else {
-						System.out.println("CONSTANTE "+(lex+c)+" INVALIDA!");
-						token = Token.ERROR;
+						System.out.println("ERRO LEXICO - CONSTANTE "+(lex+c)+" INVALIDA!");
+						System.exit(0);
 					}
 
 					break;
@@ -303,6 +304,7 @@ public class Lexico{
 				case 11:
 					if( c == '*' ){
 						state = 12;
+						lex = "";
 					}else{
 						state = final_state;
 						token = Token.DIVIDE;
@@ -334,8 +336,8 @@ public class Lexico{
 						state = final_state;
 						token = Token.CONST;
 					}else {
-						System.out.println("CONSTANTE "+(lex+c)+" INVALIDA!");
-						token = Token.ERROR;
+						System.out.println("ERRO LEXICO - CONSTANTE "+(lex+c)+" INVALIDA!");
+						System.exit(0);
 					}
 
 					break;
@@ -351,14 +353,13 @@ public class Lexico{
 
 			pos.filePos++;
 
-		}while( token != Token.ERROR && state != final_state );
+		}while( state != final_state );
+		
+		TabelaSimbolos tabela = TabelaSimbolos.getInstance();
 		
 		// Adiciona lexema na tabela de simbolos
-		if( token != Token.ERROR ) {
-			TabelaSimbolos tabelaSimbolos = null;
-			tabelaSimbolos.getInstance().add( lex, token );
-		}
-
-		return(  new ResultadoLexico( token, lex ) );
+		tabela.add( lex, token );
+		
+		return( new ResultadoLexico( tabela.getToken(lex), lex ) );
 	}
 }
