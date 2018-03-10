@@ -189,13 +189,10 @@ public class Lexico{
 					}else if( isHexLetter(c) ){
 						state = 5;
 						lex += c;
-					}else if( c == '(' || c == ')' || c == '[' || c == ']' || c == ' ' || c == '\n' || c == ',' || c == ';' || isAritimetic(c) ) {
+					}else {
 						token = Token.CONST;
 						pos.devolveChar();
 						state = final_state;
-					}else {
-						System.out.println("ERRO LEXICO - CONSTANTE "+(lex+c)+" INVALIDA");
-						System.exit(0);
 					}
 
 					break;
@@ -206,13 +203,10 @@ public class Lexico{
 					}else if( isHexLetter(c) ){
 						state = 6;
 						lex += c;
-					}else if( c == '(' || c == ')' || c == '[' || c == ']' || c == ' ' || c == '\n' || c == ',' || c == ';' || isAritimetic(c) ){
+					}else {
 						state = final_state;
 						token = Token.CONST;
 						pos.devolveChar();
-					}else {
-						System.out.println("ERRO LEXICO - CONSTANTE "+(lex+c)+" INVALIDA! " );
-						System.exit(0);
 					}
 
 					break;
@@ -225,13 +219,10 @@ public class Lexico{
 						if( c == 'h' ) {
 							token = Token.CONST;
 							state = final_state;
-						}else if( c == '(' || c == ')' || c == '[' || c == ']' || c == ' ' || c == '\n' || c == ',' || c == ';' || isAritimetic(c) ) {
+						}else {
 							token = Token.CONST;
 							pos.devolveChar();
 							state = final_state;
-						}else {
-							System.out.println("ERRO LEXICO - CONSTANTE "+(lex+c)+" INVALIDA");
-							System.exit(0);
 						}
 					}
 
@@ -262,14 +253,18 @@ public class Lexico{
 				case 7:
 					if( isDigit(c) ){
 						lex += c;
-					}else if( c == '(' || c == ')' || c == '[' || c == ']' || c == ' ' || c == '\n' || c == ',' || c == ';' || isAritimetic(c) ){
+					}else {
 						state = final_state;
 						token = Token.CONST;
 						pos.devolveChar();
+					}
+					/*
+					//  if( c == '(' || c == ')' || c == '[' || c == ']' || c == ' ' || c == '\n' || c == ',' || c == ';' || isAritimetic(c) ){
 					}else {
 						System.out.println("ERRO LEXICO - CONSTANTE "+(lex+c)+" INVALIDA!");
 						System.exit(0);
 					}
+					*/
 
 					break;
 				case 8:
