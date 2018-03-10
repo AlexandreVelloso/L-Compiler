@@ -353,12 +353,13 @@ public class Lexico{
 
 		}while( token != Token.ERROR && state != final_state );
 		
+		TabelaSimbolos tabela = TabelaSimbolos.getInstance();
+		
 		// Adiciona lexema na tabela de simbolos
 		if( token != Token.ERROR ) {
-			TabelaSimbolos tabelaSimbolos = null;
-			tabelaSimbolos.getInstance().add( lex, token );
+			tabela.add( lex, token );
 		}
-
-		return(  new ResultadoLexico( token, lex ) );
+		
+		return( new ResultadoLexico( tabela.getToken(lex), lex ) );
 	}
 }

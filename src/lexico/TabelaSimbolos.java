@@ -55,9 +55,17 @@ public class TabelaSimbolos {
 	}
 	
 	public void add( String key, byte value ) {
+		
+		System.out.println("?"+this.tabela.containsKey(key));
+		System.out.println("ue "+this.tabela.get("int") );
+		
 		if( this.tabela.containsKey( key ) == false ) {
 			this.tabela.put( key, value );
 		}
+	}
+	
+	public byte getToken( String lex ) {
+		return this.tabela.get( lex );
 	}
 	
 	public void print() {
