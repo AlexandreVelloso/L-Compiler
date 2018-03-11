@@ -30,7 +30,7 @@ public class Sintatico {
 	}
 	
 	public static void error() {
-		System.out.println( "ERRO! TOKEN "+token+" INESPERADO! NA LINHA "+FilePosition.getInstance().getLine() );
+		System.out.println( "ERRO! TOKEN "+token+" INESPERADO! NA LINHA "+FilePosition.getInstance().getLineNumber() );
 		System.exit(0);
 	}
 
