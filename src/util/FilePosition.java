@@ -2,13 +2,13 @@ package util;
 
 public class FilePosition{
 	private static int filePos;
-	private static int line;
+	private static int lineNumber;
 	
 	private static FilePosition instance;
 	
 	private FilePosition() {
 		filePos = 0;
-		line = 1;
+		lineNumber = 1;
 	}
 	
 	public static FilePosition getInstance() {
@@ -20,9 +20,14 @@ public class FilePosition{
 	}
 
 	public int getFilePos() { return filePos;}
-	public int getLine() { return line; }
+	public int getLine() { return lineNumber; }
 	
-	public void sumLine() { line++; }
-	public void devolveChar() { filePos--; }
+	public void sumLine() { lineNumber++; }
+	public void devolveChar( char c ) {
+		if( c == '\n' ) {
+			lineNumber--;
+		}
+		filePos--;
+	}
 	public void nextPos() { filePos++; }
 }

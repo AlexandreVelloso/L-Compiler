@@ -191,7 +191,7 @@ public class Lexico{
 						lex += c;
 					}else {
 						token = Token.CONST;
-						pos.devolveChar();
+						pos.devolveChar(c);
 						state = final_state;
 					}
 
@@ -206,7 +206,7 @@ public class Lexico{
 					}else {
 						state = final_state;
 						token = Token.CONST;
-						pos.devolveChar();
+						pos.devolveChar(c);
 					}
 
 					break;
@@ -221,7 +221,7 @@ public class Lexico{
 							state = final_state;
 						}else {
 							token = Token.CONST;
-							pos.devolveChar();
+							pos.devolveChar(c);
 							state = final_state;
 						}
 					}
@@ -256,7 +256,7 @@ public class Lexico{
 					}else {
 						state = final_state;
 						token = Token.CONST;
-						pos.devolveChar();
+						pos.devolveChar(c);
 					}
 					/*
 					//  if( c == '(' || c == ')' || c == '[' || c == ']' || c == ' ' || c == '\n' || c == ',' || c == ';' || isAritimetic(c) ){
@@ -273,7 +273,7 @@ public class Lexico{
 					}else{
 						state = final_state;
 						token = Token.ID;
-						pos.devolveChar();
+						pos.devolveChar(c);
 					}
 
 					break;
@@ -281,7 +281,7 @@ public class Lexico{
 					if( c == '=' ){
 						lex += c;
 					}else{
-						pos.devolveChar();
+						pos.devolveChar(c);
 					}
 
 					state = final_state;
@@ -299,7 +299,7 @@ public class Lexico{
 						lex += c;
 					}else{
 						token = Token.LESS;
-						pos.devolveChar();
+						pos.devolveChar(c);
 					}
 
 					state = final_state;
@@ -312,7 +312,7 @@ public class Lexico{
 					}else{
 						state = final_state;
 						token = Token.DIVIDE;
-						pos.devolveChar();
+						pos.devolveChar(c);
 					}
 
 					break;
