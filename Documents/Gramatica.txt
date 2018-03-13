@@ -1,6 +1,6 @@
 S -> {VARIAVEL|CONSTANTE} {COMANDO}
 
-VARIAVEL -> (int|char) id[ "["EXP"]" ] [ATRIBUICAO] { ,id[ "["EXP"]" ] [ATRIBUICAO] };
+VARIAVEL -> (int|char) id[ "["EXP"]" | ATRIBUICAO ] { ,id[ "["EXP"]" ] [ATRIBUICAO] };
 ATRIBUICAO -> <- EXP
 CONSTANTE -> final id = [+|-] const;
 
