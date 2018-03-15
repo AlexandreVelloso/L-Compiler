@@ -1,13 +1,20 @@
-S -> {VARIAVEL|CONSTANTE} {COMANDO}
+S -> {VARIAVEL|CONSTANTE} COMANDO
 
-VARIAVEL -> (int|char) id[ "["EXP"]" | ATRIBUICAO ] { ,id[ "["EXP"]" ] [ATRIBUICAO] };
-ATRIBUICAO -> <- EXP
+VARIAVEL -> (int|char) id[ "["const"]" | ATRIBUICAO ] { ,id[ "["const"]" ] [ATRIBUICAO] };
+ATRIBUICAO -> <- const
 CONSTANTE -> final id = [+|-] const;
 
-COMANDO -> { (for id <- EXP to EXP [step const] do BLOCO) | (if EXP then BLOCO [else BLOCO] ) | CMD }
-BLOCO -> begin COMANDO end | COMANDO
+COMANDO -> {
+           for id <- EXP to EXP [step const] do BLOCO |
+           if EXP then BLOCO [else BLOCO] |
+           readln "(" id[ "[" EXP "]" ] ")"; |
+           write "(" EXP {,EXP} ")"; |
+           writeln "(" EXP{ ,EXP} ")"; |
+           id <- EXP; |
+           ;
+           }
 
-CMD -> { ; | readln( id[ "["EXP"]" ] ); | write(EXP {,EXP}); | writeln( EXP{ ,EXP } ); | ATRIBUICAO; }+
+BLOCO -> begin COMANDO end; | COMANDO;
 
 EXP  -> EXPS[ (<|>|<=|>=|=|<>)EXPS ]
 EXPS -> [+|-] T{ (+|-|or)T }
@@ -16,13 +23,13 @@ F    -> "("EXP")" | not F | const | id[ "["EXP"]" ]
 
 first:
 
-S ->  'lambda' | int | char | final | for | if | ; | readln | write | writeln | <-
+S -> lambda | int | char | final | for | if | readln | write | writeln | id | ;
 VARIAVEL -> int | char
 ATRIBUICAO -> <-
 CONSTANTE -> final
-COMANDO -> 'lambda' | for | if | ; | readln | write | writeln | <-
-BLOCO -> begin
-CMD   -> ; | readln | write | writeln | <-
+COMANDO -> for | if | readln | write | writeln | id | ;
+BLOCO -> begin | for | if | readln | write | writeln | id | ;
+
 EXP   -> + | - | ( | not | const | id
 EXPS  -> + | - | ( | not | const | id
 T     -> ( | not | const | id
