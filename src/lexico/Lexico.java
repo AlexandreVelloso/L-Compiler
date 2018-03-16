@@ -31,8 +31,21 @@ public class Lexico{
 
 	public static boolean isPrintable( char c ){
 		
-		// de acordo com a tabela ascii, esses sao os caracteres imprimiveis
-		return( ( c >= 32 && c <= 255 ) || c == '\n');
+		char[] printables = {
+				'A','B','C','D','E','F','G','H','I','J','K','L',
+				'M','N','O','P','Q','R','S','T','U','V','W','X','Y',
+				'Z','a','b','c','d','e','f','g','h','i','j','k','l',
+				'm','n','o','p','q','r','s','t','u','v','w','x','y',
+				'z','^','0','1','2','3','4','5','6','7','8','9',' ',
+				'_','.','\'','"',';','&',':','(',')','[',']','{','}',
+				'+','-','*','/','%',',','@','!','?','>','<','=','\n'};
+		
+		for( int i = 0; i < printables.length; i++ ) {
+			if( printables[i] == c )
+				return true;
+		}
+		
+		return false;
 	}
 
 	public static boolean eof( String programa, FilePosition pos ){
