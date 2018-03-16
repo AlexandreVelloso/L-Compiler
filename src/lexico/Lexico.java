@@ -179,7 +179,7 @@ public class Lexico{
 								break;
 							default:
 								System.out.println("ERRO LEXICO - CARACTERE "+c+" INVALIDO! "+(int)c+" NA LINHA "+pos.getLineNumber());
-								token = Token.ERROR;
+								System.exit(0);
 								break;
 						}
 

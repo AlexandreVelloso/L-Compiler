@@ -78,11 +78,6 @@
 		</state>&#13;
 		<!--The list of transitions.-->&#13;
 		<transition>&#13;
-			<from>0</from>&#13;
-			<to>7</to>&#13;
-			<read>[1-9] | + | -</read>&#13;
-		</transition>&#13;
-		<transition>&#13;
 			<from>1</from>&#13;
 			<to>5</to>&#13;
 			<read>[a-f] | [A-F]</read>&#13;
@@ -143,6 +138,11 @@
 			<from>9</from>&#13;
 			<to>4</to>&#13;
 			<read>=</read>&#13;
+		</transition>&#13;
+		<transition>&#13;
+			<from>0</from>&#13;
+			<to>7</to>&#13;
+			<read>[1-9]</read>&#13;
 		</transition>&#13;
 		<transition>&#13;
 			<from>13</from>&#13;

@@ -16,7 +16,6 @@ public enum Token{
 	END,
 	EOF,
 	EQUAL,
-	ERROR,
 	FINAL,
 	FOR,
 	GREATHER,
