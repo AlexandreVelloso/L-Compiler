@@ -63,13 +63,13 @@ public class Lexico{
 		int state = initial_state;
 		char c;
 		String lex = "";
-		Token token = Token.EOF;
+		Token token = null;
 		do{
 
 			if( eof(programa, pos) ){
 	
 				if( state != 0 ){
-					System.out.println("ERRO LEXICO - FIM DE ARQUIVO INESPERADO! NA LINHA "+pos.getLineNumber() );
+					System.out.println( pos.getLineNumber()+":fim de arquivo nao esperado." );
 					System.exit(0);
 				}
 				break;
@@ -77,7 +77,7 @@ public class Lexico{
 			c = programa.charAt( pos.getFilePos() );
 
 			if( isPrintable(c) == false ){
-				System.out.println("ERRO LEXICO - CARACTERE '"+c+"' INVALIDO! "+(int)c+" NA LINHA "+pos.getLineNumber());
+				System.out.println( pos.getLineNumber()+":caractere invalido." );
 				System.exit(0);
 				break;
 			}
@@ -138,9 +138,11 @@ public class Lexico{
 								break;
 							case '\'':
 								state = 14;
+								lex += c;
 								break;
 							case '"':
 								state = 16;
+								lex += c;
 								break;
 							case ';':
 								state = final_state;
@@ -191,7 +193,7 @@ public class Lexico{
 								lex += c;
 								break;
 							default:
-								System.out.println("ERRO LEXICO - CARACTERE "+c+" INVALIDO! "+(int)c+" NA LINHA "+pos.getLineNumber());
+								System.out.println( pos.getLineNumber()+":caractere invalido.");
 								System.exit(0);
 								break;
 						}
@@ -251,7 +253,7 @@ public class Lexico{
 						state = 6;
 						lex += c;
 					}else{
-						System.out.println("ERRO LEXICO - CONSTANTE "+(lex+c)+" INVALIDA! ");
+						System.out.println( pos.getLineNumber()+":lexema nao identificado["+(lex+c)+"]");
 						System.exit(0);
 					}
 
@@ -262,7 +264,7 @@ public class Lexico{
 						lex += c;
 						token = Token.CONST;
 					}else{
-						System.out.println("ERRO LEXICO - CONSTANTE "+(lex+c)+" INVALIDA! NA LINHA "+pos.getLineNumber() );
+						System.out.println( pos.getLineNumber()+":lexema nao identificado["+(lex+c)+"]");
 						System.exit(0);
 						break;
 					}
@@ -276,13 +278,6 @@ public class Lexico{
 						token = Token.CONST;
 						pos.devolveChar(c);
 					}
-					/*
-					//  if( c == '(' || c == ')' || c == '[' || c == ']' || c == ' ' || c == '\n' || c == ',' || c == ';' || isAritimetic(c) ){
-					}else {
-						System.out.println("ERRO LEXICO - CONSTANTE "+(lex+c)+" INVALIDA! NA LINHA "+pos.getLineNumber() );
-						System.exit(0);
-					}
-					*/
 
 					break;
 				case 8:
@@ -356,9 +351,10 @@ public class Lexico{
 				case 15:
 					if( c == '\'' ){
 						state = final_state;
+						lex += c;
 						token = Token.CONST;
 					}else {
-						System.out.println("ERRO LEXICO - CONSTANTE "+(lex+c)+" INVALIDA! NA LINHA "+pos.getLineNumber() );
+						System.out.println( pos.getLineNumber()+":lexema nao identificado["+(lex+c)+"]");
 						System.exit(0);
 					}
 
@@ -366,6 +362,7 @@ public class Lexico{
 				case 16:
 					if( c == '"' ){
 						state = final_state;
+						lex += c;
 						token = Token.CONST;
 					}else{
 						lex += c;
@@ -378,7 +375,7 @@ public class Lexico{
 						lex += c;
 						state = 8;
 					}else {
-						System.out.println("ERRO LEXICO! - ID "+(lex+c)+" INVALIDO! NA LINHA "+pos.getLineNumber() );
+						System.out.println( pos.getLineNumber()+":lexema nao identificado["+(lex+c)+"]");
 						System.exit(0);
 					}
 					break;
@@ -390,9 +387,15 @@ public class Lexico{
 		
 		TabelaSimbolos tabela = TabelaSimbolos.getInstance();
 		
-		// Adiciona lexema na tabela de simbolos
-		tabela.add( lex, token );
+		if( token == null ) {
+			token = Token.EOF;
+			
+		}else if( tabela.getToken(lex) != null ) {
+			// se o lexema existe na tabela
+			token = tabela.getToken(lex);
+			
+		}
 		
-		return( new ResultadoLexico( tabela.getToken(lex), lex, pos.getLineNumber() ) );
+		return( new ResultadoLexico( token, lex, pos.getLineNumber() ) );
 	}
 }

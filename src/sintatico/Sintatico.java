@@ -8,9 +8,10 @@ import util.FilePosition;
 public class Sintatico {
 
 	private static Token token;
+	private static ResultadoLexico result;
 
 	public static Token readToken() {
-		ResultadoLexico result = Lexico.getToken();
+		result = Lexico.getToken();
 
 		//System.out.println("lex: " + result.getLexema() + " tok: " + result.getToken() + " linha: " + result.getLine());
 
@@ -29,8 +30,13 @@ public class Sintatico {
 	}
 
 	public static void error() {
-		System.out.println(
-				"ERRO! TOKEN " + token + " INESPERADO! NA LINHA " + FilePosition.getInstance().getLineNumber());
+		
+		if( token == Token.EOF ) {
+			System.out.println( FilePosition.getInstance().getLineNumber()+":fim de arquivo nao esperado.");
+		}else {
+			System.out.println(FilePosition.getInstance().getLineNumber()+":token nao esperado["+result.getLexema()+"].");
+		}
+		
 		System.exit(0);
 	}
 
