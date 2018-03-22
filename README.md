@@ -57,7 +57,7 @@ O primeiro símbolo da gramática é o S
 ```
 S -> {VARIAVEL|CONSTANTE} COMANDO
 
-VARIAVEL -> (int|char) id[ "["const"]" | ATRIBUICAO ] { ,id[ "["const"]" ] [ATRIBUICAO] };
+VARIAVEL -> (int|char) id[ "["const"]" | ATRIBUICAO ] { ,id[ "["const"]" | ATRIBUICAO] };
 ATRIBUICAO -> <- const
 CONSTANTE -> final id = [+|-] const;
 
@@ -71,7 +71,7 @@ COMANDO -> {
            ;
            }
 
-BLOCO -> begin COMANDO end; | COMANDO;
+BLOCO -> begin COMANDO end; | COMANDO
 
 EXP  -> EXPS[ (<|>|<=|>=|=|<>)EXPS ]
 EXPS -> [+|-] T{ (+|-|or)T }
