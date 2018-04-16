@@ -361,9 +361,12 @@ public class Lexico{
 						state = final_state;
 						lex += c;
 						token = Token.CONST;
-					}else{
+					}else if( c != '\n' ){
 						lex += c;
-					}
+					}else{
+                  System.out.println( pos.getLineNumber()+":lexema nao identificado["+(lex+c)+"]");
+						throw new Exception();
+               }
 					break;
 				case 17:
 					if( c == '_' ) {
