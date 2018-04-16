@@ -1,8 +1,6 @@
 package sintatico;
 
-import lexico.Lexico;
-import lexico.ResultadoLexico;
-import lexico.Token;
+import lexico.*;
 import util.FilePosition;
 
 public class Sintatico {
@@ -10,7 +8,7 @@ public class Sintatico {
 	private static Token token;
 	private static ResultadoLexico result;
 
-	public static Token readToken() {
+	public static Token readToken() throws Exception{
 		result = Lexico.getToken();
 
 		//System.out.println("lex: " + result.getLexema() + " tok: " + result.getToken() + " linha: " + result.getLine());
@@ -18,7 +16,7 @@ public class Sintatico {
 		return result.getToken();
 	}
 
-	public static void casaToken(Token tokenEsperado) {
+	public static void casaToken(Token tokenEsperado) throws Exception{
 
 		if (token == tokenEsperado) {
 			//System.out.println("CASOU TOKEN " + token);
@@ -29,7 +27,7 @@ public class Sintatico {
 		token = readToken();
 	}
 
-	public static void error() {
+	public static void error() throws Exception{
 		
 		if( token == Token.EOF ) {
 			System.out.println( FilePosition.getInstance().getLineNumber()+":fim de arquivo nao esperado.");
@@ -37,16 +35,16 @@ public class Sintatico {
 			System.out.println(FilePosition.getInstance().getLineNumber()+":token nao esperado["+result.getLexema()+"].");
 		}
 		
-		System.exit(0);
+		throw new Exception();
 	}
 
-	public static void principal() {
+	public static void principal() throws Exception{
 		token = readToken();
 		S();
 		casaToken(Token.EOF);
 	}
 
-	public static void S() {
+	public static void S() throws Exception{
 
 		// VARIAVEL ou CONSTANTE
 		while (token == Token.INT || token == Token.CHAR || token == Token.FINAL) {
@@ -66,7 +64,7 @@ public class Sintatico {
 
 	}
 
-	public static void VARIAVEL() {
+	public static void VARIAVEL() throws Exception{
 
 		if (token == Token.INT) {
 			casaToken(Token.INT);
@@ -100,12 +98,12 @@ public class Sintatico {
 		casaToken(Token.SEMICOLON);
 	}
 
-	public static void ATRIBUICAO() {
+	public static void ATRIBUICAO() throws Exception{
 		casaToken(Token.ATTR);
 		EXP();
 	}
 
-	public static void CONSTANTE() {
+	public static void CONSTANTE() throws Exception{
 		casaToken(Token.FINAL);
 		casaToken(Token.ID);
 		casaToken(Token.EQUAL);
@@ -120,7 +118,7 @@ public class Sintatico {
 		casaToken(Token.SEMICOLON);
 	}
 
-	public static void COMANDO() {
+	public static void COMANDO() throws Exception{
 
 		while (token == Token.FOR || token == Token.IF || token == Token.READLN || token == Token.WRITE
 				|| token == Token.WRITELN || token == Token.ID || token == Token.SEMICOLON) {
@@ -207,7 +205,7 @@ public class Sintatico {
 
 	}
 
-	public static void BLOCO() {
+	public static void BLOCO() throws Exception{
 
 		if (token == Token.BEGIN) {
 			casaToken(Token.BEGIN);
@@ -219,7 +217,7 @@ public class Sintatico {
 		}
 	}
 
-	public static void CMD() {
+	public static void CMD() throws Exception{
 
 		do {
 
@@ -270,7 +268,7 @@ public class Sintatico {
 				|| token == Token.ATTR);
 	}
 
-	public static void EXP() {
+	public static void EXP() throws Exception{
 		EXPS();
 
 		if (token == Token.LESS) {
@@ -294,7 +292,7 @@ public class Sintatico {
 		}
 	}
 
-	public static void EXPS() {
+	public static void EXPS() throws Exception{
 
 		if (token == Token.SUM) {
 			casaToken(Token.SUM);
@@ -319,7 +317,7 @@ public class Sintatico {
 
 	}
 
-	public static void T() {
+	public static void T() throws Exception{
 		F();
 
 		while (token == Token.MULTIPLY || token == Token.DIVIDE || token == Token.MOD || token == Token.AND) {
@@ -338,7 +336,7 @@ public class Sintatico {
 		}
 	}
 
-	public static void F() {
+	public static void F() throws Exception{
 
 		if (token == Token.OPEN_PARENTHESIS) {
 			casaToken(Token.OPEN_PARENTHESIS);

@@ -12,9 +12,9 @@ public class Programa {
 	
 	public void readProgram( String file ) {
 		MyFile arq = new MyFile(file);
-		
-		if( program == null )
-			program = arq.readAll();
+      
+      position.reset();
+      program = arq.readAll();
 		
 		arq.close();
 	}

@@ -20,8 +20,9 @@ public class FilePosition{
 	}
 
 	public int getFilePos() { return filePos;}
-	public int getLine() { return lineNumber; }
-	
+	public int getLineNumber() { return lineNumber; }
+	public void reset(){ filePos = 0; }
+   
 	public void sumLine() { lineNumber++; }
 	public void devolveChar( char c ) {
 		if( c == '\n' ) {

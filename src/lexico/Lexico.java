@@ -52,7 +52,7 @@ public class Lexico{
 		return( FilePosition.getInstance().getFilePos() == programa.length() );
 	}
 	
-	public static ResultadoLexico getToken( ){
+	public static ResultadoLexico getToken( )throws Exception{
 
 		final int initial_state = 0;
 		final int final_state = 4;
@@ -70,7 +70,7 @@ public class Lexico{
 	
 				if( state != 0 ){
 					System.out.println( pos.getLineNumber()+":fim de arquivo nao esperado." );
-					System.exit(0);
+					throw new Exception();
 				}
 				break;
 			}
@@ -78,8 +78,7 @@ public class Lexico{
 
 			if( isPrintable(c) == false ){
 				System.out.println( pos.getLineNumber()+":caractere invalido." );
-				System.exit(0);
-				break;
+				throw new Exception();
 			}
 			
 			if( c == '\n' ) {
@@ -193,9 +192,8 @@ public class Lexico{
 								lex += c;
 								break;
 							default:
-								System.out.println( pos.getLineNumber()+":caractere invalido.");
-								System.exit(0);
-								break;
+								System.out.println( pos.getLineNumber()+":lexema nao identificado["+(lex+c)+"]");
+								throw new Exception();
 						}
 
 					}
@@ -254,7 +252,7 @@ public class Lexico{
 						lex += c;
 					}else{
 						System.out.println( pos.getLineNumber()+":lexema nao identificado["+(lex+c)+"]");
-						System.exit(0);
+						throw new Exception();
 					}
 
 					break;
@@ -265,8 +263,7 @@ public class Lexico{
 						token = Token.CONST;
 					}else{
 						System.out.println( pos.getLineNumber()+":lexema nao identificado["+(lex+c)+"]");
-						System.exit(0);
-						break;
+						throw new Exception();
 					}
 
 					break;
@@ -355,7 +352,7 @@ public class Lexico{
 						token = Token.CONST;
 					}else {
 						System.out.println( pos.getLineNumber()+":lexema nao identificado["+(lex+c)+"]");
-						System.exit(0);
+						throw new Exception();
 					}
 
 					break;
@@ -376,7 +373,7 @@ public class Lexico{
 						state = 8;
 					}else {
 						System.out.println( pos.getLineNumber()+":lexema nao identificado["+(lex+c)+"]");
-						System.exit(0);
+						throw new Exception();
 					}
 					break;
 			}
