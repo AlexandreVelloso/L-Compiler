@@ -14,7 +14,6 @@ public enum Token{
 	DO,
 	ELSE,
 	END,
-	EOF,
 	EQUAL,
 	FINAL,
 	FOR,

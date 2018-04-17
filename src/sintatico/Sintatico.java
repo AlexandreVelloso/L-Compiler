@@ -29,7 +29,7 @@ public class Sintatico {
 
 	public static void error() throws Exception{
 		
-		if( token == Token.EOF ) {
+		if( result.getToken() == null ) {
 			System.out.println( FilePosition.getInstance().getLineNumber()+":fim de arquivo nao esperado.");
 		}else {
 			System.out.println(FilePosition.getInstance().getLineNumber()+":token nao esperado["+result.getLexema()+"].");

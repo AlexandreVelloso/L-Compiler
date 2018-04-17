@@ -387,10 +387,7 @@ public class Lexico{
 		
 		TabelaSimbolos tabela = TabelaSimbolos.getInstance();
 		
-		if( token == null ) {
-			token = Token.EOF;
-			
-		}else if( tabela.getToken(lex) != null ) {
+		if( tabela.getToken(lex) != null ) {
 			// se o lexema existe na tabela
 			token = tabela.getToken(lex);
 			
