@@ -41,7 +41,6 @@ public class Sintatico {
 	public static void principal() throws Exception{
 		token = readToken();
 		S();
-		casaToken(Token.EOF);
 	}
 
 	public static void S() throws Exception{

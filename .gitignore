@@ -1,4 +1,7 @@
 *.class
 *.swp
+.classpath
+.project
 
 src/Programas/
+/bin/
