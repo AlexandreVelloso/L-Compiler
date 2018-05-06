@@ -1,4 +1,4 @@
-package lexico;
+package enums;
 
 public enum Token{
 	AND ,

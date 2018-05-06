@@ -2,6 +2,7 @@
 *.swp
 .classpath
 .project
+*.asm
 
 src/Programas/
 /bin/

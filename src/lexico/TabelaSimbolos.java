@@ -1,5 +1,6 @@
 package lexico;
 
+import enums.Token;
 import java.util.HashMap;
 
 public class TabelaSimbolos {
