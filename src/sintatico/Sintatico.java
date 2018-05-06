@@ -67,8 +67,9 @@ public class Sintatico {
 
         codigo.fimVariaveisASM();
 
+        RegistroLexico s = new RegistroLexico();
         // COMANDO
-        COMANDO();
+        COMANDO(s);
 
         codigo.fimASM();
     }
@@ -221,7 +222,7 @@ public class Sintatico {
         casaToken(Token.SEMICOLON);
     }
 
-    public static void COMANDO() throws Exception {
+    public static void COMANDO(RegistroLexico cmd) throws Exception {
 
         while (token == Token.FOR || token == Token.IF || token == Token.READLN || token == Token.WRITE
                 || token == Token.WRITELN || token == Token.ID || token == Token.SEMICOLON) {
@@ -232,9 +233,9 @@ public class Sintatico {
                         casaToken(Token.FOR);
                         casaToken(Token.ID);
                         casaToken(Token.ATTR);
-                        EXP();
+                        EXP(cmd);
                         casaToken(Token.TO);
-                        EXP();
+                        EXP(cmd);
                         if (token == Token.STEP) {
                             casaToken(Token.STEP);
                             casaToken(Token.CONST);
@@ -244,7 +245,7 @@ public class Sintatico {
                         break;
                     case IF:
                         casaToken(Token.IF);
-                        EXP();
+                        EXP(cmd);
                         casaToken(Token.THEN);
                         BLOCO();
                         if (token == Token.ELSE) {
@@ -258,7 +259,7 @@ public class Sintatico {
                         casaToken(Token.ID);
                         if (token == Token.OPEN_BRACKET) {
                             casaToken(Token.OPEN_BRACKET);
-                            EXP();
+                            EXP(cmd);
                             casaToken(Token.CLOSE_BRACKET);
                         }
                         casaToken(Token.CLOSE_PARENTHESIS);
@@ -267,29 +268,81 @@ public class Sintatico {
                     case WRITE:
                         casaToken(Token.WRITE);
                         casaToken(Token.OPEN_PARENTHESIS);
-                        EXP();
+                        EXP(cmd);
+
+                        if (cmd.getTipo() == Tipo.INTEIRO) {
+                            codigo.mostrarInt(cmd.getEndereco());
+                        } else {
+                            codigo.mostrarString(cmd.getEndereco());
+                        }
+
                         while (token == Token.COMMA) {
                             casaToken(Token.COMMA);
-                            EXP();
+                            EXP(cmd);
+
+                            if (cmd.getTipo() == Tipo.INTEIRO) {
+                                codigo.mostrarInt(cmd.getEndereco());
+                            } else {
+                                codigo.mostrarString(cmd.getEndereco());
+                            }
                         }
+
                         casaToken(Token.CLOSE_PARENTHESIS);
                         casaToken(Token.SEMICOLON);
                         break;
                     case WRITELN:
                         casaToken(Token.WRITELN);
                         casaToken(Token.OPEN_PARENTHESIS);
-                        EXP();
+                        EXP(cmd);
+
+                        if (cmd.getTipo() == Tipo.INTEIRO) {
+                            codigo.mostrarInt(cmd.getEndereco());
+                        } else {
+                            codigo.mostrarString(cmd.getEndereco());
+                        }
+
                         while (token == Token.COMMA) {
                             casaToken(Token.COMMA);
-                            EXP();
+                            EXP(cmd);
+
+                            if (cmd.getTipo() == Tipo.INTEIRO) {
+                                codigo.mostrarInt(cmd.getEndereco());
+                            } else {
+                                codigo.mostrarString(cmd.getEndereco());
+                            }
                         }
+
+                        codigo.quebrarLinha();
+
                         casaToken(Token.CLOSE_PARENTHESIS);
                         casaToken(Token.SEMICOLON);
                         break;
                     case ID:
+
+                        // pega a variavel da memoria
+                        RegistroLexico id = variaveis.getVar(result.getLexema());
+
+                        if (id == null) {
+                            System.out.println("ERRO: Variavel [" + result.getLexema() + "] nao foi declarada.");
+                            throw new Exception("");
+                        }
+
                         casaToken(Token.ID);
                         casaToken(Token.ATTR);
-                        EXP();
+                        EXP(cmd);
+
+                        if (id.getTipo() == cmd.getTipo()) {
+
+                            // Copia o valor de CMD.end para regA
+                            codigo.mov("ax", "DS:[" + cmd.getEndereco() + "]", "Copia o valor de E.end para regA");
+                            // Copia o valor de regA para ID.end
+                            codigo.mov("DS:[" + id.getEndereco() + "]", "ax", "Copia o valor de regA para ID.end");
+
+                        } else {
+                            System.out.println("ERRO: tipos incompativeis");
+                            throw new Exception();
+                        }
+
                         casaToken(Token.SEMICOLON);
                         break;
                     case SEMICOLON:
@@ -315,145 +368,266 @@ public class Sintatico {
         }
     }
 
-    public static void CMD() throws Exception {
+    public static void EXP(RegistroLexico exp) throws Exception {
 
-        do {
+        EXPS(exp);
 
-            if (token == Token.READLN) {
-                casaToken(Token.READLN);
-                casaToken(Token.OPEN_PARENTHESIS);
-                casaToken(Token.ID);
-
-                if (token == Token.OPEN_BRACKET) {
-                    casaToken(Token.OPEN_BRACKET);
-                    EXP();
-                    casaToken(Token.CLOSE_BRACKET);
-                }
-
-                casaToken(Token.CLOSE_PARENTHESIS);
-            } else if (token == Token.WRITE) {
-                casaToken(Token.WRITE);
-                casaToken(Token.OPEN_PARENTHESIS);
-                EXP();
-
-                if (token == Token.COMMA) {
-                    casaToken(Token.COMMA);
-                    EXP();
-                }
-
-                casaToken(Token.CLOSE_PARENTHESIS);
-
-            } else if (token == Token.WRITELN) {
-                casaToken(Token.WRITELN);
-                casaToken(Token.OPEN_PARENTHESIS);
-                EXP();
-
-                if (token == Token.COMMA) {
-                    casaToken(Token.COMMA);
-                    EXP();
-                }
-
-                casaToken(Token.CLOSE_PARENTHESIS);
-
-            } else if (token == Token.ID) {
-                casaToken(Token.ID);
-                ATRIBUICAO();
+        if (null != token) {
+            switch (token) {
+                case LESS:
+                    casaToken(Token.LESS);
+                    EXPS(exp);
+                    break;
+                case GREATHER:
+                    casaToken(Token.GREATHER);
+                    EXPS(exp);
+                    break;
+                case LESS_EQUALS:
+                    casaToken(Token.LESS_EQUALS);
+                    EXPS(exp);
+                    break;
+                case GREATHER_EQUAL:
+                    casaToken(Token.GREATHER_EQUAL);
+                    EXPS(exp);
+                    break;
+                case EQUAL:
+                    casaToken(Token.EQUAL);
+                    EXPS(exp);
+                    break;
+                case DIFFERENT:
+                    casaToken(Token.DIFFERENT);
+                    EXPS(exp);
+                    break;
+                default:
+                    break;
             }
-
-            casaToken(Token.SEMICOLON);
-
-        } while (token == Token.SEMICOLON || token == Token.READLN || token == Token.WRITE || token == Token.WRITELN
-                || token == Token.ATTR);
-    }
-
-    public static void EXP() throws Exception {
-        EXPS();
-
-        if (token == Token.LESS) {
-            casaToken(Token.LESS);
-            EXPS();
-        } else if (token == Token.GREATHER) {
-            casaToken(Token.GREATHER);
-            EXPS();
-        } else if (token == Token.LESS_EQUALS) {
-            casaToken(Token.LESS_EQUALS);
-            EXPS();
-        } else if (token == Token.GREATHER_EQUAL) {
-            casaToken(Token.GREATHER_EQUAL);
-            EXPS();
-        } else if (token == Token.EQUAL) {
-            casaToken(Token.EQUAL);
-            EXPS();
-        } else if (token == Token.DIFFERENT) {
-            casaToken(Token.DIFFERENT);
-            EXPS();
         }
     }
 
-    public static void EXPS() throws Exception {
+    public static void EXPS(RegistroLexico exps) throws Exception {
+
+        boolean negarExpressao = false;
 
         if (token == Token.SUM) {
             casaToken(Token.SUM);
         } else if (token == Token.MINUS) {
             casaToken(Token.MINUS);
+            negarExpressao = true;
         }
 
-        T();
+        T(exps);
 
+        // negar o valor de T1 se necessario 
+        if (negarExpressao) {
+
+            if (exps.getTipo() == Tipo.INTEIRO && exps.getTamanho() == 0) {
+
+                // copia E.end para regA
+                codigo.mov("ax", "DS:[" + exps.getEndereco() + "]", "copia o valor de E.end para regA");
+                // nega ax
+                codigo.neg("ax", "nega o valor de regA");
+
+                exps.setEndereco(codigo.novoTemp(2));
+
+                // copia para um novo endereco o novo valor de E.end
+                codigo.mov("DS:[" + exps.getEndereco() + "]", "ax", "copia para o temporario o valor negado de E");
+
+            } else {
+                System.out.println(pos.getLineNumber() + ":tipos incompatíveis.");
+                throw new Exception();
+            }
+        }
+
+        // OBS: olhar a partir daqui se todos os tipos podem entrar
         while (token == Token.SUM || token == Token.MINUS || token == Token.OR) {
 
-            if (token == Token.SUM) {
-                casaToken(Token.SUM);
-            } else if (token == Token.MINUS) {
-                casaToken(Token.MINUS);
-            } else if (token == Token.OR) {
-                casaToken(Token.OR);
+            final int SOMA = 0;
+            final int SUBTRACAO = 1;
+            final int OR = 2;
+            int operador = -1;
+
+            if (null != token) {
+                switch (token) {
+                    case SUM:
+                        casaToken(Token.SUM);
+                        operador = SOMA;
+                        break;
+                    case MINUS:
+                        casaToken(Token.MINUS);
+                        operador = SUBTRACAO;
+                        break;
+                    case OR:
+                        casaToken(Token.OR);
+                        operador = OR;
+                        break;
+                }
             }
 
-            T();
+            RegistroLexico t2 = new RegistroLexico();
+
+            T(t2);
+
+            // carrega o conteudo de E.end para regA
+            codigo.mov("ax", "DS:[" + exps.getEndereco() + "]", "carrega E.end para regA");
+            // carrega o conteudo de t2.end para regB
+            codigo.mov("bx", "DS:[" + t2.getEndereco() + "]", "carrega T2.end para regB");
+
+            switch (operador) {
+                case SOMA:
+                    codigo.add("ax", "bx", "soma regA com regB");
+                    break;
+                case SUBTRACAO:
+                    codigo.sub("ax", "bx", "subtrai regA de regB");
+                    break;
+                case OR:
+                    System.out.println("Fazer o oeprador OR");
+                    break;
+            }
+
+            // E.end = NovoTemp
+            exps.setEndereco(codigo.novoTemp(2));
+
+            // guarda resultado de regA em E.end
+            codigo.mov("DS:[" + exps.getEndereco() + "]", "ax", "E.end recebe o valor de regA");
         }
 
     }
 
-    public static void T() throws Exception {
-        F();
+    public static void T(RegistroLexico t) throws Exception {
+        F(t);
 
-        while (token == Token.MULTIPLY || token == Token.DIVIDE || token == Token.MOD || token == Token.AND) {
+        // OBS: olhar se todos os tipos vao passar daqui
+        while (token == Token.DIVIDE || token == Token.MULTIPLY || token == Token.AND || token == Token.MOD) {
 
-            if (token == Token.MULTIPLY) {
-                casaToken(Token.MULTIPLY);
-            } else if (token == Token.DIVIDE) {
-                casaToken(Token.DIVIDE);
-            } else if (token == Token.MOD) {
-                casaToken(Token.MOD);
-            } else if (token == Token.AND) {
-                casaToken(Token.AND);
+            final int DIVISAO = 0;
+            final int MULTIPLICACAO = 1;
+            final int AND = 2;
+            final int MOD = 3;
+            int operador = -1;
+
+            if (null != token) {
+                switch (token) {
+                    case DIVIDE:
+                        casaToken(Token.DIVIDE);
+                        operador = DIVISAO;
+                        break;
+                    case MULTIPLY:
+                        casaToken(Token.MULTIPLY);
+                        operador = MULTIPLICACAO;
+                        break;
+                    case AND:
+                        casaToken(Token.AND);
+                        operador = AND;
+                        break;
+                    case MOD:
+                        casaToken(Token.MOD);
+                        operador = MOD;
+                        break;
+                    default:
+                        break;
+                }
             }
 
-            F();
+            RegistroLexico f2 = new RegistroLexico();
+            F(f2);
+
+            // carrega o conteudo de T.end no regA
+            codigo.mov("ax", "DS:[" + t.getEndereco() + "]", "carrega T.end para regA");
+            // carrega o conteudo de F2.end no regB
+            codigo.mov("bx", "DS:[" + f2.getEndereco() + "]", "carrega F2.end para regA");
+
+            switch (operador) {
+                case DIVISAO:
+                    codigo.idiv("bx", "divide ax por bx");
+                    break;
+                case MULTIPLICACAO:
+                    codigo.imul("bx", "multiplica ax por bx");
+                    break;
+                case AND:
+                    System.out.println("Olhar como fazer and");
+                    break;
+                case MOD:
+                    System.out.println("olhar como fazer mod");
+                    break;
+            }
+
+            // OBS: olhar esse tamanho
+            // T.end = NovoTemps
+            t.setEndereco(codigo.novoTemp(2));
+            // Guarda resultado de regA em T.end
+            codigo.mov("DS:[" + t.getEndereco() + "]", "ax", "Guarda resultado de regA em T.end");
         }
     }
 
-    public static void F() throws Exception {
+    public static void F(RegistroLexico f) throws Exception {
 
         if (token == Token.OPEN_PARENTHESIS) {
             casaToken(Token.OPEN_PARENTHESIS);
-            EXP();
+            EXP(f);
+            System.out.println("OLHAR COMO FAZER F -> (EXP) ");
             casaToken(Token.CLOSE_PARENTHESIS);
 
         } else if (token == Token.NOT) {
             casaToken(Token.NOT);
-            F();
+            
+            System.out.println("OLHAR COMO FAZER O NOT");
+            
+            F(f);
 
         } else if (token == Token.CONST) {
+
+            int valor;
+
+            f.setTipo(result.getTipo());
+            f.setClasse(result.getClasse());
+            f.setTamanho(0);// eu acho que aqui sempre sera 0
+
+            if (f.getTipo() == Tipo.INTEIRO) {
+                // F.end = NovoTemp
+                f.setEndereco(codigo.novoTemp(2));
+                valor = Integer.parseInt(result.getLexema());
+                
+                // mov regA, imed
+                codigo.mov("ax", "" + valor, "Valor a ser copiado para o temporario");
+                // mov F.end, regA
+                codigo.mov("DS:[" + f.getEndereco() + "]", "ax", "copia constante para temporario");
+            } else {
+                
+                System.out.println("Estou trabalhando com char ou string, olhar aqui");
+                
+                // F.end = NovoTemp
+                f.setEndereco(codigo.novoTemp(1));
+                valor = result.getLexema().charAt(0);
+            }
+
             casaToken(Token.CONST);
 
         } else if (token == Token.ID) {
+
+            RegistroLexico id = variaveis.getVar(result.getLexema());
+
+            if (id == null) {
+                System.out.println("ERRO: Variavel [" + result.getLexema() + "] nao foi declarada.");
+                throw new Exception("");
+            }
+
+            f.setClasse(result.getClasse());
+
+            // F.end = id.end
+            f.setEndereco(id.getEndereco());
+            // F.tipo = id.tipo
+            f.setTipo(id.getTipo());
+            // F.tam = id.tam
+            f.setTamanho(id.getTamanho());
+
             casaToken(Token.ID);
 
             if (token == Token.OPEN_BRACKET) {
                 casaToken(Token.OPEN_BRACKET);
-                EXP();
+                EXP(f);
+                
+                System.out.println("OLHAR COMO FAZER ACESSO A UM VETOR");
+                
                 casaToken(Token.CLOSE_BRACKET);
             }
         } else {

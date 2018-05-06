@@ -8,7 +8,7 @@ public class GeradorCodigo {
 
     private static GeradorCodigo instance;
     private FILE arqAsm = new FILE(FILE.OUTPUT, "arquivo.asm");
-    private int contadorTemp = 0;
+    private static int contadorTemp = 0;
     private int contadorVar = 0x4000;
     private int contadorRotulo = 0;
 
@@ -52,7 +52,7 @@ public class GeradorCodigo {
                 + "\tmov ds, ax\r\n"
                 + "\tmov es, ax\r\n"
                 + "\r\n"
-                + "\t; add your code here\r\n"
+                + "\t; add your code here"
         );
     }
 
@@ -72,7 +72,7 @@ public class GeradorCodigo {
         arqAsm.close();
     }
 
-    public int novoTemp(int tamanho) {
+    public static int novoTemp(int tamanho) {
         int aux = contadorTemp;
         contadorTemp += tamanho;
         return aux;
@@ -147,10 +147,80 @@ public class GeradorCodigo {
         arqAsm.println("\r\n;Fim mostrar na tela\r\n");
     }
 
-    public void mostraString(int adress) {
-
+    public void mostrarString( int adress ){
+        arqAsm.println("\r\n\t;codigo para mostrar string\r\n");
+    }
+    
+    public void mov( String reg1, String reg2, String... comentario ){
+        
+        arqAsm.print("\tmov "+reg1+", "+reg2);
+        
+        if( comentario.length == 0 ){
+            arqAsm.println("");
+        }else{
+            arqAsm.println("\t;"+comentario[0]);
+        }
+        
+    }
+    
+    public void neg( String reg, String... comentario ){
+        arqAsm.print("neg "+reg);
+        
+        if( comentario.length == 0 ){
+            arqAsm.println("");
+        }else{
+            arqAsm.println("\t;"+comentario);
+        }
+    }
+    
+    public void add( String reg1, String reg2, String... comentario ){
+        
+        arqAsm.print("add "+reg1+", "+reg2);
+        
+        if( comentario.length == 0 ){
+            arqAsm.println("");
+        }else{
+            arqAsm.println("\t;"+comentario);
+        }
+        
+    }
+    
+    public void sub( String reg1, String reg2, String... comentario ){
+        
+        arqAsm.print("sub "+reg1+", "+reg2);
+        
+        if( comentario.length == 0 ){
+            arqAsm.println("");
+        }else{
+            arqAsm.println("\t;"+comentario);
+        }
+        
+    }
+    
+    public void imul( String reg, String... comentario ){
+        arqAsm.print("imul "+reg);
+        
+        if( comentario.length == 0 ){
+            arqAsm.println("");
+        }else{
+            arqAsm.println("\t;"+comentario);
+        }
+    }
+    
+    public void idiv( String reg, String... comentario ){
+        arqAsm.print("idiv "+reg);
+        
+        if( comentario.length == 0 ){
+            arqAsm.println("");
+        }else{
+            arqAsm.println("\t;"+comentario);
+        }
     }
 
+    public void quebrarLinha(){
+        arqAsm.println(";codigo para quebra de linha");
+    }
+    
     public void adicionarVariavel(RegistroLexico var, int... valor) {
 
         // apagar todos os varX do codigo, ele serve somente para debug
