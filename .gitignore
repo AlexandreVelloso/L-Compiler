@@ -5,3 +5,7 @@
 
 src/Programas/
 /bin/
+build.xml
+manifest.mf
+/build/
+/nbproject/
