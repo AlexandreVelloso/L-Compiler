@@ -65,7 +65,8 @@ public class RegistroLexico {
                 "Line: "+line+"\n"+
                 "Tamanho: "+tamanho+"\n"+
                 "Classe: "+classe+"\n"+
-                "Tipo: "+tipo+"\n";
+                "Tipo: "+tipo+"\n"+
+                "Endereco: "+endereco+"\n";
     }
 
     public Token getToken() {

@@ -13,9 +13,9 @@ public class Sintatico {
 
     private static Token token;
     private static RegistroLexico result;
-    private static FilePosition pos = FilePosition.getInstance();
-    private static Variaveis variaveis = Variaveis.getInstance();
-    private static GeradorCodigo codigo = GeradorCodigo.getInstance();
+    private static final FilePosition pos = FilePosition.getInstance();
+    private static final Variaveis variaveis = Variaveis.getInstance();
+    private static final GeradorCodigo codigo = GeradorCodigo.getInstance();
 
     public static Token readToken() throws Exception {
         result = Lexico.getToken();
@@ -227,21 +227,54 @@ public class Sintatico {
         while (token == Token.FOR || token == Token.IF || token == Token.READLN || token == Token.WRITE
                 || token == Token.WRITELN || token == Token.ID || token == Token.SEMICOLON) {
 
+            RegistroLexico id;
+            RegistroLexico temp = new RegistroLexico();
+            
             if (null != token) {
                 switch (token) {
                     case FOR:
                         casaToken(Token.FOR);
+                        id = variaveis.getVar( result.getLexema() );
+                        
+                        if (id == null) {
+                            System.out.println("ERRO: Variavel [" + result.getLexema() + "] nao foi declarada.");
+                            throw new Exception("");
+                        }
+                        
                         casaToken(Token.ID);
                         casaToken(Token.ATTR);
                         EXP(cmd);
+                        
+                        id.setEndereco( cmd.getEndereco() );
+                        
                         casaToken(Token.TO);
                         EXP(cmd);
+                        
+                        temp.setEndereco( cmd.getEndereco() );
+                        
+                        int step;
                         if (token == Token.STEP) {
                             casaToken(Token.STEP);
+                            
+                            step = Integer.parseInt( result.getLexema() );
+                            
                             casaToken(Token.CONST);
+                        }else{
+                            step = 1;
                         }
+                        
+                        int numRotulo = codigo.novoRotulo();
+                        codigo.rotulo( numRotulo );
+                        
                         casaToken(Token.DO);
                         BLOCO();
+                        
+                        codigo.mov("cx","DS:["+id.getEndereco()+"]");
+                        codigo.mov("dx","DS:["+temp.getEndereco()+"]");
+                        codigo.add("cx", ""+step, "incremento do for");
+                        codigo.mov("DS:["+id.getEndereco()+"]", "cx", "retorna o valor de cx para memoria");
+                        codigo.cmp("cx","dx");
+                        codigo.jle(numRotulo, "fim for");
                         break;
                     case IF:
                         casaToken(Token.IF);
@@ -313,20 +346,20 @@ public class Sintatico {
                         }
 
                         codigo.quebrarLinha();
-
+                       
                         casaToken(Token.CLOSE_PARENTHESIS);
                         casaToken(Token.SEMICOLON);
                         break;
                     case ID:
 
-                        // pega a variavel da memoria
-                        RegistroLexico id = variaveis.getVar(result.getLexema());
+                    	// pega a variavel da memoria
+                        id = variaveis.getVar(result.getLexema());
 
                         if (id == null) {
                             System.out.println("ERRO: Variavel [" + result.getLexema() + "] nao foi declarada.");
                             throw new Exception("");
                         }
-
+                    	
                         casaToken(Token.ID);
                         casaToken(Token.ATTR);
                         EXP(cmd);
@@ -358,13 +391,14 @@ public class Sintatico {
 
     public static void BLOCO() throws Exception {
 
+        RegistroLexico bloco = new RegistroLexico();
+        
         if (token == Token.BEGIN) {
             casaToken(Token.BEGIN);
-
-            COMANDO();
+            COMANDO(bloco);
             casaToken(Token.END);
         } else {
-            COMANDO();
+            COMANDO(bloco);
         }
     }
 
@@ -561,78 +595,75 @@ public class Sintatico {
 
     public static void F(RegistroLexico f) throws Exception {
 
-        if (token == Token.OPEN_PARENTHESIS) {
-            casaToken(Token.OPEN_PARENTHESIS);
-            EXP(f);
-            System.out.println("OLHAR COMO FAZER F -> (EXP) ");
-            casaToken(Token.CLOSE_PARENTHESIS);
-
-        } else if (token == Token.NOT) {
-            casaToken(Token.NOT);
-            
-            System.out.println("OLHAR COMO FAZER O NOT");
-            
-            F(f);
-
-        } else if (token == Token.CONST) {
-
-            int valor;
-
-            f.setTipo(result.getTipo());
-            f.setClasse(result.getClasse());
-            f.setTamanho(0);// eu acho que aqui sempre sera 0
-
-            if (f.getTipo() == Tipo.INTEIRO) {
-                // F.end = NovoTemp
-                f.setEndereco(codigo.novoTemp(2));
-                valor = Integer.parseInt(result.getLexema());
-                
-                // mov regA, imed
-                codigo.mov("ax", "" + valor, "Valor a ser copiado para o temporario");
-                // mov F.end, regA
-                codigo.mov("DS:[" + f.getEndereco() + "]", "ax", "copia constante para temporario");
-            } else {
-                
-                System.out.println("Estou trabalhando com char ou string, olhar aqui");
-                
-                // F.end = NovoTemp
-                f.setEndereco(codigo.novoTemp(1));
-                valor = result.getLexema().charAt(0);
-            }
-
-            casaToken(Token.CONST);
-
-        } else if (token == Token.ID) {
-
-            RegistroLexico id = variaveis.getVar(result.getLexema());
-
-            if (id == null) {
-                System.out.println("ERRO: Variavel [" + result.getLexema() + "] nao foi declarada.");
-                throw new Exception("");
-            }
-
-            f.setClasse(result.getClasse());
-
-            // F.end = id.end
-            f.setEndereco(id.getEndereco());
-            // F.tipo = id.tipo
-            f.setTipo(id.getTipo());
-            // F.tam = id.tam
-            f.setTamanho(id.getTamanho());
-
-            casaToken(Token.ID);
-
-            if (token == Token.OPEN_BRACKET) {
-                casaToken(Token.OPEN_BRACKET);
-                EXP(f);
-                
-                System.out.println("OLHAR COMO FAZER ACESSO A UM VETOR");
-                
-                casaToken(Token.CLOSE_BRACKET);
-            }
-        } else {
+        if (null == token) {
             // OLHAR
             error();
+        } else switch (token) {
+            case OPEN_PARENTHESIS:
+                casaToken(Token.OPEN_PARENTHESIS);
+                EXP(f);
+                casaToken(Token.CLOSE_PARENTHESIS);
+                break;
+            case NOT:
+                casaToken(Token.NOT);
+                System.out.println("OLHAR COMO FAZER O NOT");
+                F(f);
+                break;
+            case CONST:
+                f.setTipo(result.getTipo());
+                f.setClasse(result.getClasse());
+                f.setTamanho(0);// eu acho que aqui sempre sera 0
+                if (f.getTipo() == Tipo.INTEIRO) {
+                    
+                    int valor;
+                    
+                    // F.end = NovoTemp
+                    f.setEndereco(codigo.novoTemp(2));
+                    valor = Integer.parseInt(result.getLexema());
+                    
+                    // mov regA, imed
+                    codigo.mov("ax", "" + valor, "Valor a ser copiado para o temporario");
+                    // mov F.end, regA
+                    codigo.mov("DS:[" + f.getEndereco() + "]", "ax", "copia constante para temporario");
+                } else {
+                    
+                    result.setTamanho( result.getLexema().length() - 2 );
+                    
+                    // F.end = NovoTemp
+                    f.setEndereco(codigo.novaVariavel(result.getTamanho() ));
+                    
+                    String valor = result.getLexema().substring(1, result.getTamanho()+1 );
+                    
+                    // copia String para o seu temporario
+                    codigo.stringToTemp( valor,"const string em "+ f.getEndereco() +"" );
+                }   casaToken(Token.CONST);
+                break;
+            case ID:
+                RegistroLexico id = variaveis.getVar(result.getLexema());
+                if (id == null) {
+                    System.out.println("ERRO: Variavel [" + result.getLexema() + "] nao foi declarada.");
+                    throw new Exception("");
+                }   f.setClasse(result.getClasse());
+                // F.end = id.end
+                f.setEndereco(id.getEndereco());
+                // F.tipo = id.tipo
+                f.setTipo(id.getTipo());
+                // F.tam = id.tam
+                f.setTamanho(id.getTamanho());
+                casaToken(Token.ID);
+                if (token == Token.OPEN_BRACKET) {
+                    casaToken(Token.OPEN_BRACKET);
+                    EXP(f);
+                    
+                    System.out.println("OLHAR COMO FAZER ACESSO A UM VETOR");
+                    System.out.println( f );
+                    
+                    casaToken(Token.CLOSE_BRACKET);
+                }   break;
+            default:
+                // OLHAR
+                error();
+                break;
         }
     }
 
