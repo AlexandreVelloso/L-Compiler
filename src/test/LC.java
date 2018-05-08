@@ -1,7 +1,5 @@
 package test;
 
-import java.io.File;
-
 import sintatico.Sintatico;
 import util.Programa;
 

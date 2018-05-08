@@ -1,10 +1,10 @@
 package sintatico;
 
 import enums.Classe;
-import lexico.Lexico;
 import enums.Tipo;
 import enums.Token;
-import lexico.*;
+import lexico.Lexico;
+import lexico.RegistroLexico;
 import semantico.GeradorCodigo;
 import semantico.Variaveis;
 import util.FilePosition;

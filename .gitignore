@@ -4,6 +4,7 @@
 .project
 *.asm
 
+.metadata
 src/Programas/
 /bin/
 build.xml
