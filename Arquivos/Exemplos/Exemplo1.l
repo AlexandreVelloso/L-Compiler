@@ -1,17 +1,10 @@
 /* Exemplo de Programa na linguagem L */
 
-
-int n;
-
-char nome[40];
-
-final MAXITER=10;
+int a;
 
 
 /* Programa Principal */
-
-    write("Digite seu nome: ");
-    readln(nome);
-    for n<-1 to MAXITER do begin
-        writeln("Ola' ",nome);
-    end
+   for a <- 0 to 20 step 5 do
+   begin
+      writeln(a);
+   end
