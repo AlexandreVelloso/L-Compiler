@@ -10,7 +10,7 @@ public class GeradorCodigo {
 	private FILE arqAsm = new FILE(FILE.OUTPUT, "C:\\Users\\alexandre\\Desktop\\MASM\\arquivo.asm");
 	private static int contadorTemp = 0;
 	private int contadorVar = 0x4000;
-	private int contadorRotulo = 0;
+	private int contadorRotulo = 1;
 
 	// contador auxiliar, somente para debug do codigo assembly
 	private int contadorNumVars = 0;
@@ -73,6 +73,10 @@ public class GeradorCodigo {
 
 	public void mostrarInt(int adress) {
 
+		int rotulo0 = novoRotulo();
+		int rotulo1 = novoRotulo();
+		int rotulo2 = novoRotulo();
+		
 		arqAsm.println("\r\n;Mostrar na tela\r\n");
 		arqAsm.println("\tmov di, 4000h\t;end. string temporaria"); // OBS: Eu crio um novo rotulo e uso ele para minha
 																	// string temporaria?
@@ -82,7 +86,7 @@ public class GeradorCodigo {
 		// compara com 0 para se obter o sinal do numero
 		arqAsm.println("\tcmp ax,0\t;compara para saber o sinal do numero");
 		// se numero positivo, pula
-		arqAsm.println("\tjge R" + contadorRotulo + "\t;pula se positivo");
+		arqAsm.println("\tjge R" + rotulo0 + "\t;pula se positivo");
 		// se nao pular
 		arqAsm.println("\tmov bl, 2Dh\t;senao escreve sinal -");
 		arqAsm.println("\tmov ds:[di], bl");
@@ -91,11 +95,11 @@ public class GeradorCodigo {
 		// faz o modulo do numero
 		arqAsm.println("\tneg ax\t;modulo do numero");
 		// rotulo
-		arqAsm.println("\tR" + contadorRotulo + ":");
+		arqAsm.println("\tR" + rotulo0 + ":");
 		contadorRotulo++;
 		arqAsm.println("\tmov bx,10\t;divisor");
 		// rotulo
-		arqAsm.println("\tR" + contadorRotulo + ":");
+		arqAsm.println("\tR" + rotulo1 + ":");
 		// incrementa o contador
 		arqAsm.println("\tadd cx,1\t;incrementa o contador");
 		// zera o DX, estende 32bits p/ div.
@@ -108,17 +112,17 @@ public class GeradorCodigo {
 		// verifica se ax igual 0
 		arqAsm.println("\tcmp ax, 0\t;verifica se quoc. = 0");
 		// se nao igual pula
-		arqAsm.println("\tjne R" + contadorRotulo + "\t;se nao acabou o numero, loop");
+		arqAsm.println("\tjne R" + rotulo1 + "\t;se nao acabou o numero, loop");
 		contadorRotulo++;
 		arqAsm.println("\t;depois de acabar o numero, desemp. os valores");
-		arqAsm.println("\tR" + contadorRotulo + ":");
+		arqAsm.println("\tR" + rotulo2 + ":");
 		arqAsm.println("\tpop dx\t;desempilha valor");
 		arqAsm.println("\tadd dx, 30h\t;transforma em caractere");
 		arqAsm.println("\tmov DS:[di],dl\t;escreve caractere");
 		arqAsm.println("\tadd di,1\t;incrementa base");
 		arqAsm.println("\tadd cx, -1\t;decrementa contador");
 		arqAsm.println("\tcmp cx,0\t;verifica se a pilha esta vazia");
-		arqAsm.println("\tjne R" + contadorRotulo + "\t;se nao pilha vazia, loop");
+		arqAsm.println("\tjne R" + rotulo2 + "\t;se nao pilha vazia, loop");
 		arqAsm.println("\t;grava fim de string");
 		arqAsm.println("\tmov dl, 024h\t;fim de string");
 		arqAsm.println("\tmov ds:[di], dl\t;grava '$'");
@@ -131,9 +135,45 @@ public class GeradorCodigo {
 	}
 
 	public void mostrarString(int adress) {
-		arqAsm.println("\tmov dx, " + adress + "\t; imprime string na tela\n" + "\tmov ah, 09h\r\n" + "\tint 21h\r\n");
+		arqAsm.println("\tmov dx, " + adress + "\t; imprime string na tela");
+		arqAsm.println("\tmov ah, 09h");
+		arqAsm.println("\tint 21h\r\n");
 	}
 
+	public void readString( int endereco, int tamanho ) {
+		
+		int endTemp = novoTemp( tamanho+3 );
+		int rotulo0 = novoRotulo();
+		int rotulo1 = novoRotulo();
+		
+		arqAsm.println(";ler do teclado");
+		arqAsm.println("\tmov dx, "+endTemp+"\t;endereco do temporario");
+		arqAsm.println("\tmov al, "+tamanho+"\t;tamanho do vetor");
+		arqAsm.println("\tmov DS:["+endTemp+"], al");
+		arqAsm.println("\tmov ah, 0Ah");
+		arqAsm.println("\tint 21h\r\n");
+		
+		quebrarLinha();
+		
+		arqAsm.println(";atribuicao da string lida para a variavel");
+		
+		arqAsm.println("\tmov di, "+(endTemp+2)+"\t;endereco primeiro caractere em temp");
+		arqAsm.println("\tmov si, "+endereco+"\t;endereco base do vetor");
+		arqAsm.println("R"+rotulo0+":");
+		arqAsm.println("\tmov al, DS:[di]");
+		arqAsm.println("\tcmp al, 13\t;compara com \\n?");
+		arqAsm.println("\tje R"+rotulo1);
+		arqAsm.println("\tmov DS:[si], al\t;salva caractere");
+		arqAsm.println("\tadd di,1");
+		arqAsm.println("\tadd si,1");
+		arqAsm.println("\tjmp R"+rotulo0);
+		arqAsm.println("R"+rotulo1+":");
+		arqAsm.println("\tmov al, 24h\t;final de string");
+		arqAsm.println("\tmov DS:[si], al");
+		
+		arqAsm.println(";fim ler do teclado\r\n");
+	}
+	
 	public void mov(String reg1, String reg2, String... comentario) {
 
 		arqAsm.print("\tmov " + reg1 + ", " + reg2);
@@ -257,14 +297,10 @@ public class GeradorCodigo {
 		int endereco = novoTemp(3);
 
 		arqAsm.println(";quebra linha");
-		arqAsm.println("\tmov ax, 10");
-		arqAsm.println("\tmov DS:[" + (endereco) + "], ax\t;Adiciona \\n");
-		arqAsm.println("\tmov ax, 13");
-		arqAsm.println("\tmov DS:[" + (endereco + 1) + "], ax\t;Adiciona \\r");
-		arqAsm.println("\tmov ax, 36");
-		arqAsm.println("\tmov DS:[" + (endereco + 2) + "], ax\t;Adiciona $");
-		arqAsm.println("\tmov dx, " + endereco + "\t;imprime a string na tela");
-		arqAsm.println("\tmov ah, 09h");
+		arqAsm.println("\tmov ah, 02h");
+		arqAsm.println("\tmov dl, 0Dh");
+		arqAsm.println("\tint 21h");
+		arqAsm.println("\tmov DL, 0Ah");
 		arqAsm.println("\tint 21h");
 		arqAsm.println(";fim quebra linha\r\n");
 	}

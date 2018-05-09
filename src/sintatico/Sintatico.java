@@ -289,12 +289,38 @@ public class Sintatico {
                     case READLN:
                         casaToken(Token.READLN);
                         casaToken(Token.OPEN_PARENTHESIS);
+                        id = variaveis.getVar( result.getLexema() );
+                        
+                        if (id == null) {
+                            System.out.println("ERRO: Variavel [" + result.getLexema() + "] nao foi declarada.");
+                            throw new Exception("");
+                        }
+                        
                         casaToken(Token.ID);
+                        
                         if (token == Token.OPEN_BRACKET) {
                             casaToken(Token.OPEN_BRACKET);
                             EXP(cmd);
+                            
+                            if( (cmd.getTipo() == Tipo.INTEIRO && cmd.getTamanho() == 0) == false ) {
+                            	System.out.println( pos.getLineNumber()+":tipos incompatíveis." );
+                            	throw new Exception();
+                            }
+                            
+                            System.out.println("olhar como fazer acesso a vetor");
+                            
                             casaToken(Token.CLOSE_BRACKET);
                         }
+                        
+                        int tamanho;
+                        if( id.getTamanho() < 255 ) {
+                        	tamanho = id.getTamanho();
+                        }else {
+                        	tamanho = 255;
+                        }
+                        
+                        codigo.readString( id.getEndereco(), tamanho );
+                        
                         casaToken(Token.CLOSE_PARENTHESIS);
                         casaToken(Token.SEMICOLON);
                         break;
@@ -630,7 +656,7 @@ public class Sintatico {
                     result.setTamanho( result.getLexema().length() - 2 );
                     
                     // F.end = NovoTemp
-                    f.setEndereco(codigo.novaVariavel(result.getTamanho() ));
+                    f.setEndereco(codigo.novaVariavel(result.getTamanho()+1 ));
                     
                     String valor = result.getLexema().substring(1, result.getTamanho()+1 );
                     
