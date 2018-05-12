@@ -151,6 +151,31 @@ public class GeradorCodigo {
 		mostrarString(endTemp);
 	}
 
+	public void readInt( int endereco ) {
+		
+	}
+	
+	public void readChar( int endereco ) {
+		int endTemp = novoTemp(4);
+		
+		arqAsm.println(";ler do teclado");
+		mov( "bx", "DS:["+endereco+"]", "endereco do char com deslocamento");
+		arqAsm.println("\tmov dx, " + endTemp + "\t;endereco do temporario");
+		arqAsm.println("\tmov al, 2\t;tamanho do vetor");
+		arqAsm.println("\tmov DS:[" + endTemp + "], al");
+		arqAsm.println("\tmov ah, 0Ah");
+		arqAsm.println("\tint 21h\r\n");
+		
+		quebrarLinha();
+		
+		arqAsm.println(";atribuicao da string lida para a variavel");
+		arqAsm.println("\tmov di, " + (endTemp + 2) + "\t;endereco primeiro caractere em temp");
+		arqAsm.println("\tmov si, bx\t;endereco base do char");
+		arqAsm.println("\tmov al, DS:[di]");
+		arqAsm.println("\tmov DS:[si], al\t;salva caractere");
+		arqAsm.println(";fim ler do teclado\r\n");
+	}
+	
 	public void readString(int endereco, int tamanho) {
 
 		int endTemp = novoTemp(tamanho + 3);

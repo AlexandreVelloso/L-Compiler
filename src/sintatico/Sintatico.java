@@ -328,26 +328,52 @@ public class Sintatico {
                         
                         if (token == Token.OPEN_BRACKET) {
                             casaToken(Token.OPEN_BRACKET);
+                            
+                            if( id.getTamanho() == 0 ){
+                                // erro
+                            }
+
+                            int endTemp;
+                            if( id.getTipo() == Tipo.INTEIRO ) {
+                                endTemp = codigo.novoTemp( 2 );
+                            }else {
+                                endTemp = codigo.novoTemp( 1 );
+                            }
+
                             EXP(cmd);
                             
                             if( (cmd.getTipo() == Tipo.INTEIRO && cmd.getTamanho() == 0) == false ) {
                             	System.out.println( pos.getLineNumber()+":tipos incompat�veis." );
                             	throw new Exception();
                             }
-                            
-                            System.out.println("olhar como fazer acesso a vetor");
+
+                            codigo.mov("ax","DS:["+cmd.getEndereco()+"]","carrega o conteudo de E.end para regA");
+
+                            if( cmd.getTipo() == Tipo.INTEIRO ){
+                                codigo.add( "ax", "ax" );
+                            }
+
+                            codigo.mov("di","ax");
+                            codigo.add("di",""+id.getEndereco(), "soma o deslocamento");
+                            codigo.mov("DS:["+endTemp+"]", "di", "salva o valor do deslocamento em temp");
+
+                            if( id.getTipo() == Tipo.INTEIRO ){
+                                codigo.readInt( endTemp );
+                            }else{
+                                codigo.readChar( endTemp );
+                            }
                             
                             casaToken(Token.CLOSE_BRACKET);
+                        }else{
+                            int tamanho;
+                            if( id.getTamanho() < 255 ) {
+                                tamanho = id.getTamanho();
+                            }else {
+                                tamanho = 255;
+                            }
+                            
+                            codigo.readString( id.getEndereco(), tamanho );
                         }
-                        
-                        int tamanho;
-                        if( id.getTamanho() < 255 ) {
-                        	tamanho = id.getTamanho();
-                        }else {
-                        	tamanho = 255;
-                        }
-                        
-                        codigo.readString( id.getEndereco(), tamanho );
                         
                         casaToken(Token.CLOSE_PARENTHESIS);
                         casaToken(Token.SEMICOLON);
@@ -747,7 +773,7 @@ public class Sintatico {
                     
                     codigo.mov("ax", "DS:["+f1.getEndereco()+"]", "carrega o conteudo de E.end para regA");
                     
-                    if( f1.getTipo() == Tipo.INTEIRO && f1.getTamanho() == 0 ) {
+                    if( f1.getTipo() == Tipo.INTEIRO) {
                     	codigo.add( "ax", "ax" );
                     }
                     
