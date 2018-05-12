@@ -1,1 +1,0 @@
-int variavel <- 5;

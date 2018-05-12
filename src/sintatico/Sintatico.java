@@ -332,7 +332,12 @@ public class Sintatico {
                         if (cmd.getTipo() == Tipo.INTEIRO) {
                             codigo.mostrarInt(cmd.getEndereco());
                         } else {
-                            codigo.mostrarString(cmd.getEndereco());
+                        	
+                        	if( cmd.getToken() == Token.ID && cmd.getTamanho() == 0 ) {
+                        		codigo.mostrarChar(cmd.getEndereco());
+                        	}else {
+                        		codigo.mostrarString(cmd.getEndereco());
+                        	}
                         }
 
                         while (token == Token.COMMA) {
@@ -342,7 +347,11 @@ public class Sintatico {
                             if (cmd.getTipo() == Tipo.INTEIRO) {
                                 codigo.mostrarInt(cmd.getEndereco());
                             } else {
-                                codigo.mostrarString(cmd.getEndereco());
+                            	if( cmd.getToken() == Token.ID && cmd.getTamanho() == 0 ) {
+                            		codigo.mostrarChar(cmd.getEndereco());
+                            	}else {
+                            		codigo.mostrarString(cmd.getEndereco());
+                            	}
                             }
                         }
 
@@ -357,7 +366,11 @@ public class Sintatico {
                         if (cmd.getTipo() == Tipo.INTEIRO) {
                             codigo.mostrarInt(cmd.getEndereco());
                         } else {
-                            codigo.mostrarString(cmd.getEndereco());
+                        	if( cmd.getToken() == Token.ID && cmd.getTamanho() == 0 ) {
+                        		codigo.mostrarChar(cmd.getEndereco());
+                        	}else {
+                        		codigo.mostrarString(cmd.getEndereco());
+                        	}
                         }
 
                         while (token == Token.COMMA) {
@@ -367,7 +380,12 @@ public class Sintatico {
                             if (cmd.getTipo() == Tipo.INTEIRO) {
                                 codigo.mostrarInt(cmd.getEndereco());
                             } else {
-                                codigo.mostrarString(cmd.getEndereco());
+                            	
+                            	if( cmd.getToken() == Token.ID && cmd.getTamanho() == 0 ) {
+                            		codigo.mostrarChar(cmd.getEndereco());
+                            	}else {
+                            		codigo.mostrarString(cmd.getEndereco());
+                            	}
                             }
                         }
 
@@ -389,7 +407,7 @@ public class Sintatico {
                         casaToken(Token.ID);
                         casaToken(Token.ATTR);
                         EXP(cmd);
-
+                        
                         if (id.getTipo() == cmd.getTipo()) {
 
                             // Copia o valor de CMD.end para regA
@@ -639,6 +657,7 @@ public class Sintatico {
                 f.setTipo(result.getTipo());
                 f.setClasse(result.getClasse());
                 f.setTamanho(0);// eu acho que aqui sempre sera 0
+                f.setToken(Token.CONST);
                 if (f.getTipo() == Tipo.INTEIRO) {
                     
                     int valor;
@@ -669,23 +688,45 @@ public class Sintatico {
                 if (id == null) {
                     System.out.println("ERRO: Variavel [" + result.getLexema() + "] nao foi declarada.");
                     throw new Exception("");
-                }   f.setClasse(result.getClasse());
+                }
+                f.setClasse(result.getClasse());
                 // F.end = id.end
                 f.setEndereco(id.getEndereco());
                 // F.tipo = id.tipo
                 f.setTipo(id.getTipo());
                 // F.tam = id.tam
                 f.setTamanho(id.getTamanho());
+                f.setToken(Token.ID);
                 casaToken(Token.ID);
                 if (token == Token.OPEN_BRACKET) {
                     casaToken(Token.OPEN_BRACKET);
-                    EXP(f);
                     
-                    System.out.println("OLHAR COMO FAZER ACESSO A UM VETOR");
-                    System.out.println( f );
+                    RegistroLexico f1 = new RegistroLexico();
+                    EXP(f1);
+                    
+                    if( f1.getTipo() == Tipo.INTEIRO && f1.getTamanho() == 0 ) {
+
+                    	codigo.mov("di", ""+id.getEndereco(), "move para regC o valor base do array");
+                    	codigo.mov("ax", "DS:["+f1.getEndereco()+"]", "pega a posicao do array");
+                    	
+                    	if( id.getTipo() == Tipo.INTEIRO ) {
+                    		f1.setEndereco( codigo.novoTemp(2) );
+                    		codigo.mov("bx", "2", "tamanho do deslocamento, somente para inteiro");
+                    		codigo.imul("bx");
+                    	}else {
+                    		f1.setEndereco( codigo.novoTemp(1) );
+                    	}
+                    	
+                    	codigo.add("di", "ax", "soma deslocamento");
+                    }
+                    
+                    codigo.mov("ax", "DS:[di]", "copia o valor do velor para regA");
+                    codigo.mov("DS:["+f.getEndereco()+"]", "ax");
                     
                     casaToken(Token.CLOSE_BRACKET);
-                }   break;
+                }
+                
+                break;
             default:
                 // OLHAR
                 error();

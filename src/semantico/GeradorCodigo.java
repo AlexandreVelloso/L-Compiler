@@ -140,6 +140,17 @@ public class GeradorCodigo {
 		arqAsm.println("\tint 21h\r\n");
 	}
 
+	public void mostrarChar(int adress) {
+		int endTemp = novoTemp(2);
+		
+		mov( "di","DS:["+adress+"]", "variavel que contem o caractere" );
+		mov( "DS:["+endTemp+"]", "di", "copia o caractere para o temporario");
+		mov( "di", "024h", "fim de string");
+		mov( "DS:["+(endTemp+1)+"]", "di", "copia o fim de string");
+		
+		mostrarString( endTemp );
+	}
+	
 	public void readString( int endereco, int tamanho ) {
 		
 		int endTemp = novoTemp( tamanho+3 );
@@ -221,7 +232,7 @@ public class GeradorCodigo {
 	}
 
 	public void imul(String reg, String... comentario) {
-		arqAsm.print("imul " + reg);
+		arqAsm.print("\timul " + reg);
 
 		if (comentario.length == 0) {
 			arqAsm.println("");
@@ -328,7 +339,7 @@ public class GeradorCodigo {
 					arqAsm.println("\tbyte " + var.getTamanho() + " DUP(?)\t;array char em " + endereco);
 				} else {
 					endereco = novaVariavel(var.getTamanho() * 2);
-					arqAsm.println("\tsword " + var.getTamanho() + " DUP(?)\t;array char em " + endereco);
+					arqAsm.println("\tsword " + var.getTamanho() + " DUP(?)\t;array int em " + endereco);
 				}
 			}
 
