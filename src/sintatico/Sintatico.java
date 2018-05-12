@@ -198,7 +198,7 @@ public class Sintatico {
         }else {
         	
         	if( trocarSinal ) {
-            	System.out.println( pos.getLineNumber()+":tipos incompatíveis");
+            	System.out.println( pos.getLineNumber()+":tipos incompatï¿½veis");
             	throw new Exception();
             }
         	
@@ -331,7 +331,7 @@ public class Sintatico {
                             EXP(cmd);
                             
                             if( (cmd.getTipo() == Tipo.INTEIRO && cmd.getTamanho() == 0) == false ) {
-                            	System.out.println( pos.getLineNumber()+":tipos incompatíveis." );
+                            	System.out.println( pos.getLineNumber()+":tipos incompatï¿½veis." );
                             	throw new Exception();
                             }
                             
@@ -439,7 +439,7 @@ public class Sintatico {
                         if (id.getTipo() == cmd.getTipo()) {
 
                         	if( id.getClasse() == Classe.CONSTANTE ) {
-                        		System.out.println( pos.getLineNumber()+":classe de identificador incompatível ["+id.getLexema()+"]." );
+                        		System.out.println( pos.getLineNumber()+":classe de identificador incompatï¿½vel ["+id.getLexema()+"]." );
                         		throw new Exception();
                         	}
                         	
@@ -731,31 +731,38 @@ public class Sintatico {
                 f.setTamanho(id.getTamanho());
                 f.setToken(Token.ID);
                 casaToken(Token.ID);
+
                 if (token == Token.OPEN_BRACKET) {
                     casaToken(Token.OPEN_BRACKET);
+                    
+                    int endTemp;
+                    if( id.getTipo() == Tipo.INTEIRO ) {
+                    	endTemp = codigo.novoTemp( 2 );
+                    }else {
+                    	endTemp = codigo.novoTemp( 1 );
+                    }
                     
                     RegistroLexico f1 = new RegistroLexico();
                     EXP(f1);
                     
+                    codigo.mov("ax", "DS:["+f1.getEndereco()+"]", "carrega o conteudo de E.end para regA");
+                    
                     if( f1.getTipo() == Tipo.INTEIRO && f1.getTamanho() == 0 ) {
-
-                    	codigo.mov("di", ""+id.getEndereco(), "move para regC o valor base do array");
-                    	codigo.mov("ax", "DS:["+f1.getEndereco()+"]", "pega a posicao do array");
-                    	
-                    	if( id.getTipo() == Tipo.INTEIRO ) {
-                    		f1.setEndereco( codigo.novoTemp(2) );
-                    		codigo.mov("bx", "2", "tamanho do deslocamento, somente para inteiro");
-                    		codigo.imul("bx");
-                    	}else {
-                    		f1.setEndereco( codigo.novoTemp(1) );
-                    	}
-                    	
-                    	codigo.add("di", "ax", "soma deslocamento");
+                    	codigo.add( "ax", "ax" );
                     }
                     
-                    codigo.mov("ax", "DS:[di]", "copia o valor do velor para regA");
-                    codigo.mov("DS:["+f.getEndereco()+"]", "ax");
+                    // olhar por que nao consigo fazer mov ax, DS:[ax]
+                    //codigo.mov("ah","0","zera a parte alta de regA");
+
+                    // nao sei por que eu tenho que usar o di
+                    codigo.mov("di","ax");
+                    codigo.add("di", ""+id.getEndereco(), "soma o deslocamento");
+                    codigo.mov("ax", "DS:[di]", "carrega o conteudo do array");
                     
+                    codigo.mov("DS:["+endTemp+"]", "ax", "carrega o conteudo de ax para o novo temp");
+                    
+                    f.setEndereco( endTemp );
+
                     casaToken(Token.CLOSE_BRACKET);
                 }
                 

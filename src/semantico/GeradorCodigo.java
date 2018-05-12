@@ -338,7 +338,7 @@ public class GeradorCodigo {
 				arqAsm.println("\tsword " + var.getTamanho() + " DUP(?)\t;array int em " + endereco);
 			}
 		}
-		
+		var.setEndereco( endereco );
 	}
 
 	public void adicionarVariavel(RegistroLexico var, int valor) {
@@ -352,7 +352,6 @@ public class GeradorCodigo {
 			endereco = novaVariavel(2);
 			arqAsm.println("\tsword " + valor + "\t;var. int em " + endereco);
 		}
-
 		var.setEndereco(endereco);
 	}
 
@@ -361,6 +360,5 @@ public class GeradorCodigo {
 		int endereco = novaVariavel(1);
 		arqAsm.println("\tbyte " + valor + "\t;var. char em " + endereco);
 		var.setEndereco(endereco);
-		
 	}
 }
