@@ -105,7 +105,7 @@ public class Sintatico {
 
             tamanho = Integer.parseInt(result.getLexema());
 
-            if ((tipo == Tipo.INTEIRO && tamanho > 2000) || (tipo == Tipo.CARACTERE && tamanho > 4000)) {
+            if ( tamanho == 0 || (tipo == Tipo.INTEIRO && tamanho > 2000) || (tipo == Tipo.CARACTERE && tamanho > 4000)) {
                 System.out.println(pos.getLineNumber() + ":tamanho do vetor excede o mÃ¡ximo permitido. ");
                 throw new Exception();
             } else {
@@ -115,7 +115,7 @@ public class Sintatico {
             casaToken(Token.CONST);
             casaToken(Token.CLOSE_BRACKET);
         } else if (token == Token.ATTR) {
-            ATRIBUICAO();
+            ATRIBUICAO( id );
             varInicializada = true;
         }
 
@@ -156,7 +156,7 @@ public class Sintatico {
 
                 casaToken(Token.CLOSE_BRACKET);
             } else if (token == Token.ATTR) {
-                ATRIBUICAO();
+                ATRIBUICAO( id );
                 varInicializada = true;
             }
 
@@ -172,10 +172,38 @@ public class Sintatico {
         casaToken(Token.SEMICOLON);
     }
 
-    public static void ATRIBUICAO() throws Exception {
+    public static void ATRIBUICAO( RegistroLexico id ) throws Exception {
         casaToken(Token.ATTR);
 
-        codigo.adicionarVariavel(result, Integer.parseInt(result.getLexema()));
+        boolean trocarSinal = false;
+        
+        if( token == Token.SUM ) {
+        	casaToken(Token.SUM);
+        }else if( token == Token.MINUS ) {
+        	casaToken(Token.MINUS);
+        	
+        	trocarSinal = true;
+        }
+        
+        if( result.getTipo() == Tipo.INTEIRO ) {
+        	
+        	int valor = Integer.parseInt( result.getLexema() );
+        	
+        	if( trocarSinal ) {
+        		valor *= -1;
+        	}
+        	
+        	codigo.adicionarVariavel(id, valor);
+        	
+        }else {
+        	
+        	if( trocarSinal ) {
+            	System.out.println( pos.getLineNumber()+":tipos incompatíveis");
+            	throw new Exception();
+            }
+        	
+        	codigo.adicionarVariavel(id, result.getLexema() );
+        }
 
         casaToken(Token.CONST);
     }
@@ -410,6 +438,11 @@ public class Sintatico {
                         
                         if (id.getTipo() == cmd.getTipo()) {
 
+                        	if( id.getClasse() == Classe.CONSTANTE ) {
+                        		System.out.println( pos.getLineNumber()+":classe de identificador incompatível ["+id.getLexema()+"]." );
+                        		throw new Exception();
+                        	}
+                        	
                             // Copia o valor de CMD.end para regA
                             codigo.mov("ax", "DS:[" + cmd.getEndereco() + "]", "Copia o valor de E.end para regA");
                             // Copia o valor de regA para ID.end

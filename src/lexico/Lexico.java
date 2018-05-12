@@ -239,6 +239,7 @@ public class Lexico {
                         if (c == 'h') {
                             token = Token.CONST;
                             tipo = Tipo.CARACTERE;
+                            lex += c;
                             state = final_state;
                         } else {
                             token = Token.CONST;

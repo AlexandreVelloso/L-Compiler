@@ -76,7 +76,7 @@ public class GeradorCodigo {
 		int rotulo0 = novoRotulo();
 		int rotulo1 = novoRotulo();
 		int rotulo2 = novoRotulo();
-		
+
 		arqAsm.println("\r\n;Mostrar na tela\r\n");
 		arqAsm.println("\tmov di, 4000h\t;end. string temporaria"); // OBS: Eu crio um novo rotulo e uso ele para minha
 																	// string temporaria?
@@ -142,49 +142,49 @@ public class GeradorCodigo {
 
 	public void mostrarChar(int adress) {
 		int endTemp = novoTemp(2);
-		
-		mov( "di","DS:["+adress+"]", "variavel que contem o caractere" );
-		mov( "DS:["+endTemp+"]", "di", "copia o caractere para o temporario");
-		mov( "di", "024h", "fim de string");
-		mov( "DS:["+(endTemp+1)+"]", "di", "copia o fim de string");
-		
-		mostrarString( endTemp );
+
+		mov("di", "DS:[" + adress + "]", "variavel que contem o caractere");
+		mov("DS:[" + endTemp + "]", "di", "copia o caractere para o temporario");
+		mov("di", "024h", "fim de string");
+		mov("DS:[" + (endTemp + 1) + "]", "di", "copia o fim de string");
+
+		mostrarString(endTemp);
 	}
-	
-	public void readString( int endereco, int tamanho ) {
-		
-		int endTemp = novoTemp( tamanho+3 );
+
+	public void readString(int endereco, int tamanho) {
+
+		int endTemp = novoTemp(tamanho + 3);
 		int rotulo0 = novoRotulo();
 		int rotulo1 = novoRotulo();
-		
+
 		arqAsm.println(";ler do teclado");
-		arqAsm.println("\tmov dx, "+endTemp+"\t;endereco do temporario");
-		arqAsm.println("\tmov al, "+tamanho+"\t;tamanho do vetor");
-		arqAsm.println("\tmov DS:["+endTemp+"], al");
+		arqAsm.println("\tmov dx, " + endTemp + "\t;endereco do temporario");
+		arqAsm.println("\tmov al, " + tamanho + "\t;tamanho do vetor");
+		arqAsm.println("\tmov DS:[" + endTemp + "], al");
 		arqAsm.println("\tmov ah, 0Ah");
 		arqAsm.println("\tint 21h\r\n");
-		
+
 		quebrarLinha();
-		
+
 		arqAsm.println(";atribuicao da string lida para a variavel");
-		
-		arqAsm.println("\tmov di, "+(endTemp+2)+"\t;endereco primeiro caractere em temp");
-		arqAsm.println("\tmov si, "+endereco+"\t;endereco base do vetor");
-		arqAsm.println("R"+rotulo0+":");
+
+		arqAsm.println("\tmov di, " + (endTemp + 2) + "\t;endereco primeiro caractere em temp");
+		arqAsm.println("\tmov si, " + endereco + "\t;endereco base do vetor");
+		arqAsm.println("R" + rotulo0 + ":");
 		arqAsm.println("\tmov al, DS:[di]");
 		arqAsm.println("\tcmp al, 13\t;compara com \\n?");
-		arqAsm.println("\tje R"+rotulo1);
+		arqAsm.println("\tje R" + rotulo1);
 		arqAsm.println("\tmov DS:[si], al\t;salva caractere");
 		arqAsm.println("\tadd di,1");
 		arqAsm.println("\tadd si,1");
-		arqAsm.println("\tjmp R"+rotulo0);
-		arqAsm.println("R"+rotulo1+":");
+		arqAsm.println("\tjmp R" + rotulo0);
+		arqAsm.println("R" + rotulo1 + ":");
 		arqAsm.println("\tmov al, 24h\t;final de string");
 		arqAsm.println("\tmov DS:[si], al");
-		
+
 		arqAsm.println(";fim ler do teclado\r\n");
 	}
-	
+
 	public void mov(String reg1, String reg2, String... comentario) {
 
 		arqAsm.print("\tmov " + reg1 + ", " + reg2);
@@ -316,44 +316,51 @@ public class GeradorCodigo {
 		arqAsm.println(";fim quebra linha\r\n");
 	}
 
-	public void adicionarVariavel(RegistroLexico var, int... valor) {
-
-		// apagar todos os varX do codigo, ele serve somente para debug
+	public void adicionarVariavel(RegistroLexico var) {
 		int endereco;
 
-		if (valor.length == 0) {
-
-			if (var.getTamanho() == 0) {
-
-				if (var.getTipo() == Tipo.CARACTERE) {
-					endereco = novaVariavel(1);
-					arqAsm.println("\tbyte ?\t;var. char em " + endereco);
-				} else {
-					endereco = novaVariavel(2);
-					arqAsm.println("\tsword ?\t;var. int em " + endereco);
-				}
-			} else {
-
-				if (var.getTipo() == Tipo.CARACTERE) {
-					endereco = novaVariavel(var.getTamanho());
-					arqAsm.println("\tbyte " + var.getTamanho() + " DUP(?)\t;array char em " + endereco);
-				} else {
-					endereco = novaVariavel(var.getTamanho() * 2);
-					arqAsm.println("\tsword " + var.getTamanho() + " DUP(?)\t;array int em " + endereco);
-				}
-			}
-
-		} else {
+		if (var.getTamanho() == 0) {
 
 			if (var.getTipo() == Tipo.CARACTERE) {
 				endereco = novaVariavel(1);
-				arqAsm.println("\tbyte " + valor[0] + "\t;var. char em " + endereco);
+				arqAsm.println("\tbyte ?\t;var. char em " + endereco);
 			} else {
 				endereco = novaVariavel(2);
-				arqAsm.println("\tsword " + valor[0] + "\t;var. int em " + endereco);
+				arqAsm.println("\tsword ?\t;var. int em " + endereco);
 			}
+		} else {
+
+			if (var.getTipo() == Tipo.CARACTERE) {
+				endereco = novaVariavel(var.getTamanho());
+				arqAsm.println("\tbyte " + var.getTamanho() + " DUP(?)\t;array char em " + endereco);
+			} else {
+				endereco = novaVariavel(var.getTamanho() * 2);
+				arqAsm.println("\tsword " + var.getTamanho() + " DUP(?)\t;array int em " + endereco);
+			}
+		}
+		
+	}
+
+	public void adicionarVariavel(RegistroLexico var, int valor) {
+
+		int endereco;
+
+		if (var.getTipo() == Tipo.CARACTERE) {
+			endereco = novaVariavel(1);
+			arqAsm.println("\tbyte '" + (char) valor + "'\t;var. char em " + endereco);
+		} else {
+			endereco = novaVariavel(2);
+			arqAsm.println("\tsword " + valor + "\t;var. int em " + endereco);
 		}
 
 		var.setEndereco(endereco);
+	}
+
+	public void adicionarVariavel(RegistroLexico var, String valor) {
+		
+		int endereco = novaVariavel(1);
+		arqAsm.println("\tbyte " + valor + "\t;var. char em " + endereco);
+		var.setEndereco(endereco);
+		
 	}
 }

@@ -1,7 +1,7 @@
 S -> {VARIAVEL|CONSTANTE} COMANDO
 
 VARIAVEL -> (int|char) id[ "["const"]" | ATRIBUICAO ] { ,id[ "["const"]" | ATRIBUICAO] };
-ATRIBUICAO -> <- const
+ATRIBUICAO -> <- [+|-] const
 CONSTANTE -> final id = [+|-] const;
 
 COMANDO -> {
