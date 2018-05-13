@@ -368,6 +368,9 @@ public class Sintatico {
                             int tamanho;
                             if( id.getTamanho() < 255 ) {
                                 tamanho = id.getTamanho();
+                                
+                                // olhar isso
+                                if( tamanho == 0 ) tamanho = 1;
                             }else {
                                 tamanho = 255;
                             }
