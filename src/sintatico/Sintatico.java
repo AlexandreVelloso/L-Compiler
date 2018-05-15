@@ -358,7 +358,7 @@ public class Sintatico {
                             codigo.mov("DS:["+endTemp+"]", "di", "salva o valor do deslocamento em temp");
 
                             if( id.getTipo() == Tipo.INTEIRO ){
-                                codigo.readInt( endTemp );
+                                codigo.readInt( id.getEndereco(), endTemp );
                             }else{
                                 codigo.readChar( endTemp );
                             }
@@ -366,16 +366,22 @@ public class Sintatico {
                             casaToken(Token.CLOSE_BRACKET);
                         }else{
                             int tamanho;
-                            if( id.getTamanho() < 255 ) {
-                                tamanho = id.getTamanho();
-                                
-                                // olhar isso
-                                if( tamanho == 0 ) tamanho = 1;
-                            }else {
-                                tamanho = 255;
-                            }
                             
-                            codigo.readString( id.getEndereco(), tamanho );
+                            if( id.getTipo() == Tipo.INTEIRO ){
+
+                                codigo.readInt( id.getEndereco() );
+                            }else{
+
+                                if( id.getTamanho() < 255 ) {
+                                    tamanho = id.getTamanho();
+                                    // olhar isso
+                                    if( tamanho == 0 ) tamanho = 1;
+                                }else {
+                                    tamanho = 255;
+                                }
+
+                                codigo.readString( id.getEndereco(), tamanho );
+                            }
                         }
                         
                         casaToken(Token.CLOSE_PARENTHESIS);
@@ -780,11 +786,7 @@ public class Sintatico {
                     	codigo.add( "ax", "ax" );
                     }
                     
-                    // olhar por que nao consigo fazer mov ax, DS:[ax]
-                    //codigo.mov("ah","0","zera a parte alta de regA");
-
-                    // nao sei por que eu tenho que usar o di
-                    codigo.mov("di","ax");
+                    codigo.mov("di","ax","...");
                     codigo.add("di", ""+id.getEndereco(), "soma o deslocamento");
                     codigo.mov("ax", "DS:[di]", "carrega o conteudo do array");
                     

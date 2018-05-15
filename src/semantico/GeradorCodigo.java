@@ -10,7 +10,7 @@ public class GeradorCodigo {
 	private FILE arqAsm = new FILE(FILE.OUTPUT, "C:\\Users\\alexandre\\Desktop\\MASM\\arquivo.asm");
 	private static int contadorTemp = 0;
 	private int contadorVar = 0x4000;
-	private int contadorRotulo = 1;
+	private int contadorRotulo = 0;
 
 	// contador auxiliar, somente para debug do codigo assembly
 	private int contadorNumVars = 0;
@@ -151,14 +151,120 @@ public class GeradorCodigo {
 		mostrarString(endTemp);
 	}
 
+	/*
+	Olhar essa funcao, por enquanto ela so vai funcionar para leitura
+	de uma posicao de um array, pois ela usa o deslocamento para ser
+	o endereco base de leitura
+	*/
 	public void readInt( int endereco ) {
+
+		int endTemp = novoTemp( 254 );
+		int rotulo0 = novoRotulo();
+		int rotulo1 = novoRotulo();
+		int rotulo2 = novoRotulo();
 		
+		arqAsm.println(";ler int do teclado");
+		arqAsm.println("\tmov dx, "+endTemp+"\t;endereco do temporario");
+		arqAsm.println("\tmov al, "+(255)+"\t;tamanho do vetor + 1");
+		arqAsm.println("\tmov DS:["+endTemp+"], al");
+		arqAsm.println("\tmov ah, 0Ah");
+		arqAsm.println("\tint 21h\r\n");
+		
+		quebrarLinha();
+		
+		arqAsm.println(";transformar string lida em int");
+		
+		arqAsm.println("\tmov di, "+(endTemp+2)+"\t;posicao do string");
+		arqAsm.println("\tmov ax, 0\t;acumulador");
+		arqAsm.println("\tmov cx, 10\t;base decimal");
+		arqAsm.println("\tmov dx, 1\t;valor sinal +");
+		arqAsm.println("\tmov bh, 0");
+		arqAsm.println("\tmov bl, DS:[di]\t;caractere");
+		arqAsm.println("\tcmp bx, 2Dh\t;verifica sinal");
+		arqAsm.println("\tjne R"+rotulo0+"\t;se nao negativo");
+		arqAsm.println("\tmov dx, -1\t;valor sinal -");
+		arqAsm.println("\tadd di, 1\t;incrementa base");
+		arqAsm.println("\tmov bl, DS:[di]\t;proximo caractere");
+		arqAsm.println("R"+rotulo0+":");
+		arqAsm.println("\tpush dx\t;empilha sinal");
+		arqAsm.println("\tmov dx, 0\t;reg. multiplicacao");
+		arqAsm.println("R"+rotulo1+":");
+		arqAsm.println("\tcmp bx, 0Dh\t;verifica fim string");
+		arqAsm.println("\tje R"+rotulo2);
+		arqAsm.println("\timul cx\t;mult. 10");
+		arqAsm.println("\tadd bx, -48\t;converte caractere");
+		arqAsm.println("\tadd ax, bx\t;soma valor caractere");
+		arqAsm.println("\tadd di, 1\t;incrementa base");
+		arqAsm.println("\tmov bh, 0");
+		arqAsm.println("\tmov bl, ds:[di]\t;proximo caractere");
+		arqAsm.println("\tjmp R"+rotulo1+"\t;loop");
+		arqAsm.println("R"+rotulo2+":");
+		arqAsm.println("\tpop cx\t;desempilha sinal");
+		arqAsm.println("\timul cx\t;mult. sinal");
+		arqAsm.println("\tmov DS:["+endereco+"], ax	;copia valor de volta para variavel");
+		
+		arqAsm.println(";fim ler do teclado\r\n");
 	}
 	
+	public void readInt( int endereco, int deslocamento ) {
+		int endTemp = novoTemp( 254 );
+		int rotulo0 = novoRotulo();
+		int rotulo1 = novoRotulo();
+		int rotulo2 = novoRotulo();
+		
+		arqAsm.println(";ler int do teclado");
+		arqAsm.println("\tmov dx, "+endTemp+"\t;endereco do temporario");
+		arqAsm.println("\tmov al, 255\t;tamanho do vetor");
+		arqAsm.println("\tmov DS:["+endTemp+"], al");
+		arqAsm.println("\tmov ah, 0Ah");
+		arqAsm.println("\tint 21h\r\n");
+		
+		quebrarLinha();
+		
+		arqAsm.println(";transformar string lida em int");
+		
+		arqAsm.println("\tmov di, "+(endTemp+2)+"\t;posicao do string");
+		arqAsm.println("\tmov ax, 0\t;acumulador");
+		arqAsm.println("\tmov cx, 10\t;base decimal");
+		arqAsm.println("\tmov dx, 1\t;valor sinal +");
+		arqAsm.println("\tmov bh, 0");
+		arqAsm.println("\tmov bl, DS:[di]\t;caractere");
+		arqAsm.println("\tcmp bx, 2Dh\t;verifica sinal");
+		arqAsm.println("\tjne R"+rotulo0+"\t;se nao negativo");
+		arqAsm.println("\tmov dx, -1\t;valor sinal -");
+		arqAsm.println("\tadd di, 1\t;incrementa base");
+		arqAsm.println("\tmov bl, DS:[di]\t;proximo caractere");
+		arqAsm.println("R"+rotulo0+":");
+		arqAsm.println("\tpush dx\t;empilha sinal");
+		arqAsm.println("\tmov dx, 0\t;reg. multiplicacao");
+		arqAsm.println("R"+rotulo1+":");
+		arqAsm.println("\tcmp bx, 0Dh\t;verifica fim string");
+		arqAsm.println("\tje R"+rotulo2);
+		arqAsm.println("\timul cx\t;mult. 10");
+		arqAsm.println("\tadd bx, -48\t;converte caractere");
+		arqAsm.println("\tadd ax, bx\t;soma valor caractere");
+		arqAsm.println("\tadd di, 1\t;incrementa base");
+		arqAsm.println("\tmov bh, 0");
+		arqAsm.println("\tmov bl, ds:[di]\t;proximo caractere");
+		arqAsm.println("\tjmp R"+rotulo1+"\t;loop");
+		arqAsm.println("R"+rotulo2+":");
+		arqAsm.println("\tpop cx\t;desempilha sinal");
+		arqAsm.println("\timul cx\t;mult. sinal");
+		mov("bx", "DS:["+deslocamento+"]");
+		arqAsm.println("\tmov DS:[bx], ax\t;copia valor de volta para variavel");
+		
+		arqAsm.println(";fim ler do teclado\r\n");
+	}
+	
+	/*
+	Olhar essa funcao, por enquando ela so esta sendo chamada quando for ler
+	uma posicao de array, quando for ler um char sozinho e' lido usando a
+	funcao readString com tamanho 1
+	*/
 	public void readChar( int endereco ) {
 		int endTemp = novoTemp(4);
 		
-		arqAsm.println(";ler do teclado");
+		arqAsm.println(";ler char do teclado");
 		mov( "bx", "DS:["+endereco+"]", "endereco do char com deslocamento");
 		arqAsm.println("\tmov dx, " + endTemp + "\t;endereco do temporario");
 		arqAsm.println("\tmov al, 2\t;tamanho do vetor");
@@ -197,7 +303,7 @@ public class GeradorCodigo {
 		arqAsm.println("\tmov si, " + endereco + "\t;endereco base do vetor");
 		arqAsm.println("R" + rotulo0 + ":");
 		arqAsm.println("\tmov al, DS:[di]");
-		arqAsm.println("\tcmp al, 13\t;compara com \\n?");
+		arqAsm.println("\tcmp al, 13\t;compara com \\r");
 		arqAsm.println("\tje R" + rotulo1);
 		arqAsm.println("\tmov DS:[si], al\t;salva caractere");
 		arqAsm.println("\tadd di,1");
@@ -223,12 +329,12 @@ public class GeradorCodigo {
 	}
 
 	public void neg(String reg, String... comentario) {
-		arqAsm.print("neg " + reg);
+		arqAsm.print("\tneg " + reg);
 
 		if (comentario.length == 0) {
 			arqAsm.println("");
 		} else {
-			arqAsm.println("\t;" + comentario);
+			arqAsm.println("\t;" + comentario[0]);
 		}
 	}
 
@@ -246,12 +352,12 @@ public class GeradorCodigo {
 
 	public void sub(String reg1, String reg2, String... comentario) {
 
-		arqAsm.print("sub " + reg1 + ", " + reg2);
+		arqAsm.print("\tsub " + reg1 + ", " + reg2);
 
 		if (comentario.length == 0) {
 			arqAsm.println("");
 		} else {
-			arqAsm.println("\t;" + comentario);
+			arqAsm.println("\t;" + comentario[0]);
 		}
 
 	}
@@ -262,17 +368,17 @@ public class GeradorCodigo {
 		if (comentario.length == 0) {
 			arqAsm.println("");
 		} else {
-			arqAsm.println("\t;" + comentario);
+			arqAsm.println("\t;" + comentario[0]);
 		}
 	}
 
 	public void idiv(String reg, String... comentario) {
-		arqAsm.print("idiv " + reg);
+		arqAsm.print("\tidiv " + reg);
 
 		if (comentario.length == 0) {
 			arqAsm.println("");
 		} else {
-			arqAsm.println("\t;" + comentario);
+			arqAsm.println("\t;" + comentario[0]);
 		}
 	}
 
@@ -280,9 +386,9 @@ public class GeradorCodigo {
 		arqAsm.println("R" + numRotulo + ":");
 	}
 
-	public void jne(int numRotulo, String... comentario) {
+	public void je(int numRotulo, String... comentario) {
 
-		arqAsm.print("jne R" + numRotulo);
+		arqAsm.print("je R" + numRotulo);
 
 		if (comentario.length == 0) {
 			arqAsm.println("\r\n");
@@ -290,7 +396,29 @@ public class GeradorCodigo {
 			arqAsm.println("\t;" + comentario[0] + "\r\n");
 		}
 	}
+	
+	public void jne(int numRotulo, String... comentario) {
 
+		arqAsm.print("\tjne R" + numRotulo);
+
+		if (comentario.length == 0) {
+			arqAsm.println("");
+		} else {
+			arqAsm.println("\t;" + comentario[0] + "");
+		}
+	}
+
+	public void jmp(int numRotulo, String... comentario) {
+
+		arqAsm.print("jmp R" + numRotulo);
+
+		if (comentario.length == 0) {
+			arqAsm.println("\r\n");
+		} else {
+			arqAsm.println("\t;" + comentario[0] + "\r\n");
+		}
+	}
+	
 	public void jle(int numRotulo, String... comentario) {
 
 		arqAsm.print("jle R" + numRotulo);
@@ -312,6 +440,26 @@ public class GeradorCodigo {
 		}
 	}
 
+	public void push( String reg1, String... comentario ){
+		arqAsm.print("\tpush "+reg1);
+
+		if( comentario.length == 0 ){
+			arqAsm.println("");
+		}else{
+			arqAsm.println("\t;"+ comentario[0] );
+		}
+	}
+
+	public void pop( String reg1, String... comentario ){
+		arqAsm.print("\tpop "+reg1);
+
+		if( comentario.length == 0 ){
+			arqAsm.println("");
+		}else{
+			arqAsm.println( "\t;"+comentario[0] );
+		}
+	}
+	
 	public void stringToTemp(String valor, String... comentario) {
 		/*
 		 * dseg SEGMENT PUBLIC ; inicio seg. dados byte "digite seu nome: $" ; const
