@@ -3,6 +3,7 @@
 .classpath
 .project
 
+.metadata
 src/Programas/
 /bin/
 build.xml

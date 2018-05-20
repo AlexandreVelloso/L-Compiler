@@ -1,10 +1,10 @@
-S -> {VARIAVEL|CONSTANTE} COMANDO
+S -> {VARIAVEL|CONSTANTE} {COMANDO}
 
 VARIAVEL -> (int|char) id[ "["const"]" | ATRIBUICAO ] { ,id[ "["const"]" | ATRIBUICAO] };
-ATRIBUICAO -> <- const
+ATRIBUICAO -> <- [+|-] const
 CONSTANTE -> final id = [+|-] const;
 
-COMANDO -> {
+COMANDO ->
            for id <- EXP to EXP [step const] do BLOCO |
            if EXP then BLOCO [else BLOCO] |
            readln "(" id[ "[" EXP "]" ] ")"; |
@@ -12,9 +12,8 @@ COMANDO -> {
            writeln "(" EXP{ ,EXP} ")"; |
            id <- EXP; |
            ;
-           }
 
-BLOCO -> begin COMANDO end; | COMANDO
+BLOCO -> begin {COMANDO} end; | COMANDO
 
 EXP  -> EXPS[ (<|>|<=|>=|=|<>)EXPS ]
 EXPS -> [+|-] T{ (+|-|or)T }

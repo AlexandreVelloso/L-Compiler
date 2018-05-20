@@ -239,6 +239,7 @@ public class Lexico {
                         if (c == 'h') {
                             token = Token.CONST;
                             tipo = Tipo.CARACTERE;
+                            lex += c;
                             state = final_state;
                         } else {
                             token = Token.CONST;
@@ -310,6 +311,7 @@ public class Lexico {
                         lex += c;
                     } else if (c == '=') {
                         token = Token.LESS_EQUALS;
+                        lex += c;
                     } else if (c == '-') {
                         token = Token.ATTR;
                         lex += c;

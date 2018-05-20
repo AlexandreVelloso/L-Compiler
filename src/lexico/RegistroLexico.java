@@ -112,4 +112,8 @@ public class RegistroLexico {
     public void setEndereco( int endereco ){
         this.endereco = endereco;
     }
+    
+    public void setToken( Token token ) {
+    	this.token = token;
+    }
 }
