@@ -567,7 +567,7 @@ public class Sintatico {
 				casaToken(Token.LESS);
 				EXPS(exp1);
 
-				novoTemp = codigo.novoTemp(1);
+				novoTemp = codigo.novoTemp(2);
 				rotulo0 = codigo.novoRotulo();
 				rotulo1 = codigo.novoRotulo();
 
@@ -590,7 +590,7 @@ public class Sintatico {
 				casaToken(Token.GREATHER);
 				EXPS(exp1);
 
-				novoTemp = codigo.novoTemp(1);
+				novoTemp = codigo.novoTemp(2);
 				rotulo0 = codigo.novoRotulo();
 				rotulo1 = codigo.novoRotulo();
 
@@ -612,7 +612,7 @@ public class Sintatico {
 			case LESS_EQUALS:
 				casaToken(Token.LESS_EQUALS);
 				EXPS(exp1);
-				novoTemp = codigo.novoTemp(1);
+				novoTemp = codigo.novoTemp(2);
 				rotulo0 = codigo.novoRotulo();
 				rotulo1 = codigo.novoRotulo();
 
@@ -634,7 +634,7 @@ public class Sintatico {
 			case GREATHER_EQUAL:
 				casaToken(Token.GREATHER_EQUAL);
 				EXPS(exp1);
-				novoTemp = codigo.novoTemp(1);
+				novoTemp = codigo.novoTemp(2);
 				rotulo0 = codigo.novoRotulo();
 				rotulo1 = codigo.novoRotulo();
 
@@ -657,7 +657,7 @@ public class Sintatico {
 				casaToken(Token.EQUAL);
 				EXPS(exp1);
 
-				novoTemp = codigo.novoTemp(1);
+				novoTemp = codigo.novoTemp(2);
 				rotulo0 = codigo.novoRotulo();
 				rotulo1 = codigo.novoRotulo();
 
@@ -680,7 +680,7 @@ public class Sintatico {
 				casaToken(Token.DIFFERENT);
 				EXPS(exp1);
 
-				novoTemp = codigo.novoTemp(1);
+				novoTemp = codigo.novoTemp(2);
 				rotulo0 = codigo.novoRotulo();
 				rotulo1 = codigo.novoRotulo();
 
@@ -784,7 +784,7 @@ public class Sintatico {
 				codigo.sub("ax", "bx", "subtrai regA de regB");
 				break;
 			case OR:
-				System.out.println("Fazer o oeprador OR");
+				codigo.add( "ax", "bx", "O comando or vai ser a soma dos 2");
 				break;
 			}
 
@@ -848,10 +848,11 @@ public class Sintatico {
 				codigo.imul("bx", "multiplica ax por bx");
 				break;
 			case AND:
-				System.out.println("Olhar como fazer and");
+				codigo.imul("bx", "O operador and sera' a multiplicacao de ax com bx");
 				break;
 			case MOD:
-				System.out.println("olhar como fazer mod");
+				codigo.idiv("bx", "divide ax por bx para fazer o mod");
+				codigo.mov("ax", "dx", "Copia o resto da divisao para ax");
 				break;
 			}
 
