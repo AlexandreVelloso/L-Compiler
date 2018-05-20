@@ -784,7 +784,20 @@ public class Sintatico {
 				codigo.sub("ax", "bx", "subtrai regA de regB");
 				break;
 			case OR:
-				codigo.add( "ax", "bx", "O comando or vai ser a soma dos 2");
+				int rotulo0 = codigo.novoRotulo();
+				int rotulo1 = codigo.novoRotulo();
+				int rotulo2 = codigo.novoRotulo();
+				codigo.cmp("ax", "1");
+				codigo.je( rotulo0 );
+				codigo.cmp("bx","1");
+				codigo.je( rotulo0);
+				codigo.jmp(rotulo1);
+				codigo.rotulo( rotulo0 );
+				codigo.mov("ax", "1", "resultado verdadeiro");
+				codigo.jmp(rotulo2, "pula para fim do if");
+				codigo.rotulo(rotulo1);
+				codigo.mov("ax","0","resultado falso");
+				codigo.rotulo(rotulo2);
 				break;
 			}
 
@@ -878,8 +891,12 @@ public class Sintatico {
 				break;
 			case NOT:
 				casaToken(Token.NOT);
-				System.out.println("OLHAR COMO FAZER O NOT");
 				F(f);
+				codigo.mov("ax", "DS:["+f.getEndereco()+"]", "Copia valor de F.end");
+				codigo.neg("ax", "nego ax");
+				int temp = codigo.novoTemp(2);
+				codigo.mov("DS:["+temp+"]", "ax", "copia o valor de ax negado para o novoTemp");
+				f.setEndereco( temp );
 				break;
 			case CONST:
 				f.setTipo(result.getTipo());
