@@ -71,15 +71,20 @@ public class GeradorCodigo {
 		return aux;
 	}
 
+	public void comentario( String comentario ) {
+		arqAsm.println(";"+comentario);
+	}
+	
 	public void mostrarInt(int adress) {
 
 		int rotulo0 = novoRotulo();
 		int rotulo1 = novoRotulo();
 		int rotulo2 = novoRotulo();
+		
+		int temp = novoTemp( 3 );// tamanho de 1 inteiro mais o caractere $
 
 		arqAsm.println("\r\n;Mostrar na tela\r\n");
-		arqAsm.println("\tmov di, 4000h\t;end. string temporaria"); // OBS: Eu crio um novo rotulo e uso ele para minha
-																	// string temporaria?
+		arqAsm.println("\tmov di, "+temp+"\t;end. string temporaria");
 		arqAsm.println("\tmov cx,0\t;contador");
 		// move numero para regA
 		arqAsm.println("\tmov ax, DS:[" + adress + "]\t;move inteiro para regA");
@@ -127,7 +132,7 @@ public class GeradorCodigo {
 		arqAsm.println("\tmov dl, 024h\t;fim de string");
 		arqAsm.println("\tmov ds:[di], dl\t;grava '$'");
 		arqAsm.println("\t;exibe string");
-		arqAsm.println("\tmov dx, 4000h");// OBS: olhar esse endereco
+		arqAsm.println("\tmov dx, "+temp);
 		arqAsm.println("\tmov ah, 09h");
 		arqAsm.println("\tint 21h");
 
@@ -388,12 +393,12 @@ public class GeradorCodigo {
 
 	public void je(int numRotulo, String... comentario) {
 
-		arqAsm.print("je R" + numRotulo);
+		arqAsm.print("\tje R" + numRotulo);
 
 		if (comentario.length == 0) {
-			arqAsm.println("\r\n");
+			arqAsm.println("");
 		} else {
-			arqAsm.println("\t;" + comentario[0] + "\r\n");
+			arqAsm.println("\t;" + comentario[0]);
 		}
 	}
 	
@@ -404,32 +409,65 @@ public class GeradorCodigo {
 		if (comentario.length == 0) {
 			arqAsm.println("");
 		} else {
-			arqAsm.println("\t;" + comentario[0] + "");
+			arqAsm.println("\t;" + comentario[0]);
 		}
 	}
 
 	public void jmp(int numRotulo, String... comentario) {
 
-		arqAsm.print("jmp R" + numRotulo);
+		arqAsm.print("\tjmp R" + numRotulo);
 
 		if (comentario.length == 0) {
-			arqAsm.println("\r\n");
+			arqAsm.println("");
 		} else {
-			arqAsm.println("\t;" + comentario[0] + "\r\n");
+			arqAsm.println("\t;" + comentario[0]);
 		}
 	}
 	
 	public void jle(int numRotulo, String... comentario) {
 
-		arqAsm.print("jle R" + numRotulo);
+		arqAsm.print("\tjle R" + numRotulo);
 
 		if (comentario.length == 0) {
-			arqAsm.println("\r\n");
+			arqAsm.println("");
 		} else {
-			arqAsm.println("\t;" + comentario[0] + "\r\n");
+			arqAsm.println("\t;" + comentario[0]);
 		}
 	}
 
+	public void jl(int numRotulo, String... comentario) {
+
+		arqAsm.print("\tjl R" + numRotulo);
+
+		if (comentario.length == 0) {
+			arqAsm.println("");
+		} else {
+			arqAsm.println("\t;" + comentario[0]);
+		}
+	}
+	
+	public void jge(int numRotulo, String... comentario) {
+
+		arqAsm.print("\tjge R" + numRotulo);
+
+		if (comentario.length == 0) {
+			arqAsm.println("");
+		} else {
+			arqAsm.println("\t;" + comentario[0]);
+		}
+	}
+
+	public void jg(int numRotulo, String... comentario) {
+
+		arqAsm.print("\tjg R" + numRotulo);
+
+		if (comentario.length == 0) {
+			arqAsm.println("");
+		} else {
+			arqAsm.println("\t;" + comentario[0]);
+		}
+	}
+	
 	public void cmp(String reg1, String reg2, String... comentario) {
 		arqAsm.print("\tcmp " + reg1 + ", " + reg2);
 
@@ -489,6 +527,10 @@ public class GeradorCodigo {
 		arqAsm.println(";fim quebra linha\r\n");
 	}
 
+	public void comando( String comando ) {
+		arqAsm.println(comando);
+	}
+	
 	public void adicionarVariavel(RegistroLexico var) {
 		int endereco;
 

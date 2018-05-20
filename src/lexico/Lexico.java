@@ -311,6 +311,7 @@ public class Lexico {
                         lex += c;
                     } else if (c == '=') {
                         token = Token.LESS_EQUALS;
+                        lex += c;
                     } else if (c == '-') {
                         token = Token.ATTR;
                         lex += c;
