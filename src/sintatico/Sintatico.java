@@ -205,7 +205,7 @@ public class Sintatico {
 		} else {
 
 			if (trocarSinal) {
-				System.out.println(pos.getLineNumber() + ":tipos incompat�veis");
+				System.out.println(pos.getLineNumber() + ":tipos incompativeis");
 				throw new Exception();
 			}
 
@@ -218,10 +218,9 @@ public class Sintatico {
 	public static void CONSTANTE() throws Exception {
 		Classe classe = Classe.CONSTANTE;
 		int tamanho = 0;
-		int valor = -1;
 
 		casaToken(Token.FINAL);
-
+		
 		RegistroLexico id = result.clone();
 		id.setTamanho(tamanho);
 		id.setClasse(classe);
@@ -240,17 +239,18 @@ public class Sintatico {
 			isNegativo = true;
 		}
 
+		variaveis.addVariavel(id);
 		if (id.getTipo() == Tipo.INTEIRO) {
-			valor = Integer.parseInt(result.getLexema());
+			int valor = Integer.parseInt( result.getLexema() );
+			
 			if (isNegativo) {
 				valor *= -1;
 			}
+			
+			codigo.adicionarVariavel(id, valor);
 		} else {
-			valor = result.getLexema().charAt(0);
+			codigo.adicionarVariavel(id, result.getLexema());
 		}
-
-		variaveis.addVariavel(id);
-		codigo.adicionarVariavel(id, valor);
 
 		casaToken(Token.CONST);
 		casaToken(Token.SEMICOLON);
@@ -573,7 +573,13 @@ public class Sintatico {
 
 				// verificar tipos antes
 				codigo.mov("ax", "DS:[" + exp.getEndereco() + "]", "carrega EXP.end para regA");
+				if( exp.getTipo() == Tipo.CARACTERE ) {
+					codigo.mov("ah", "0", "deve zerar a parte alta de regA quando ler um caracter");
+				}
 				codigo.mov("bx", "DS:[" + exp1.getEndereco() + "]", "carrega EXP.end para regB");
+				if( exp1.getTipo() == Tipo.CARACTERE ) {
+					codigo.mov("bh", "0", "deve zerar a parte alta de regB quando ler um caracter");
+				}
 				codigo.cmp("ax", "bx");
 				codigo.jge(rotulo0, "Jump se falso");
 				codigo.mov("ax", "1", "true");
@@ -596,7 +602,13 @@ public class Sintatico {
 
 				// verificar tipos antes
 				codigo.mov("ax", "DS:[" + exp.getEndereco() + "]", "carrega EXP.end para regA");
+				if( exp.getTipo() == Tipo.CARACTERE ) {
+					codigo.mov("ah", "0", "deve zerar a parte alta de regA quando ler um caracter");
+				}
 				codigo.mov("bx", "DS:[" + exp1.getEndereco() + "]", "carrega EXP.end para regB");
+				if( exp1.getTipo() == Tipo.CARACTERE ) {
+					codigo.mov("bh", "0", "deve zerar a parte alta de regB quando ler um caracter");
+				}
 				codigo.cmp("ax", "bx");
 				codigo.jle(rotulo0, "Jump se falso");
 				codigo.mov("ax", "1", "true");
@@ -618,7 +630,13 @@ public class Sintatico {
 
 				// verificar tipos antes
 				codigo.mov("ax", "DS:[" + exp.getEndereco() + "]", "carrega EXP.end para regA");
+				if( exp.getTipo() == Tipo.CARACTERE ) {
+					codigo.mov("ah", "0", "deve zerar a parte alta de regA quando ler um caracter");
+				}
 				codigo.mov("bx", "DS:[" + exp1.getEndereco() + "]", "carrega EXP.end para regB");
+				if( exp1.getTipo() == Tipo.CARACTERE ) {
+					codigo.mov("bh", "0", "deve zerar a parte alta de regB quando ler um caracter");
+				}
 				codigo.cmp("ax", "bx");
 				codigo.jg(rotulo0, "Jump se falso");
 				codigo.mov("ax", "1", "true");
@@ -640,7 +658,13 @@ public class Sintatico {
 
 				// verificar tipos antes
 				codigo.mov("ax", "DS:[" + exp.getEndereco() + "]", "carrega EXP.end para regA");
+				if( exp.getTipo() == Tipo.CARACTERE ) {
+					codigo.mov("ah", "0", "deve zerar a parte alta de regA quando ler um caracter");
+				}
 				codigo.mov("bx", "DS:[" + exp1.getEndereco() + "]", "carrega EXP.end para regB");
+				if( exp1.getTipo() == Tipo.CARACTERE ) {
+					codigo.mov("bh", "0", "deve zerar a parte alta de regB quando ler um caracter");
+				}
 				codigo.cmp("ax", "bx");
 				codigo.jl(rotulo0, "Jump se falso");
 				codigo.mov("ax", "1", "true");
@@ -663,7 +687,13 @@ public class Sintatico {
 
 				// verificar tipos antes
 				codigo.mov("ax", "DS:[" + exp.getEndereco() + "]", "carrega EXP.end para regA");
+				if( exp.getTipo() == Tipo.CARACTERE ) {
+					codigo.mov("ah", "0", "deve zerar a parte alta de regA quando ler um caracter");
+				}
 				codigo.mov("bx", "DS:[" + exp1.getEndereco() + "]", "carrega EXP.end para regB");
+				if( exp1.getTipo() == Tipo.CARACTERE ) {
+					codigo.mov("bh", "0", "deve zerar a parte alta de regB quando ler um caracter");
+				}
 				codigo.cmp("ax", "bx");
 				codigo.jne(rotulo0, "Jump se falso");
 				codigo.mov("ax", "1", "true");
@@ -686,7 +716,13 @@ public class Sintatico {
 
 				// verificar tipos antes
 				codigo.mov("ax", "DS:[" + exp.getEndereco() + "]", "carrega EXP.end para regA");
+				if( exp.getTipo() == Tipo.CARACTERE ) {
+					codigo.mov("ah", "0", "deve zerar a parte alta de regA quando ler um caracter");
+				}
 				codigo.mov("bx", "DS:[" + exp1.getEndereco() + "]", "carrega EXP.end para regB");
+				if( exp1.getTipo() == Tipo.CARACTERE ) {
+					codigo.mov("bh", "0", "deve zerar a parte alta de regB quando ler um caracter");
+				}
 				codigo.cmp("ax", "bx");
 				codigo.je(rotulo0, "Jump se falso");
 				codigo.mov("ax", "1", "true");
@@ -784,6 +820,12 @@ public class Sintatico {
 				codigo.sub("ax", "bx", "subtrai regA de regB");
 				break;
 			case OR:
+				
+				if( exps.getTipo() != Tipo.RELACIONAL || t2.getTipo() != Tipo.RELACIONAL ) {
+					System.out.println( pos.getLineNumber()+":tipos incompativeis.");
+					throw new Exception();
+				}
+				
 				int rotulo0 = codigo.novoRotulo();
 				int rotulo1 = codigo.novoRotulo();
 				int rotulo2 = codigo.novoRotulo();
@@ -855,6 +897,7 @@ public class Sintatico {
 
 			switch (operador) {
 			case DIVISAO:
+				codigo.mov("dx", "0");
 				codigo.idiv("bx", "divide ax por bx");
 				break;
 			case MULTIPLICACAO:

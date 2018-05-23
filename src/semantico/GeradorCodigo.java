@@ -295,7 +295,7 @@ public class GeradorCodigo {
 
 		arqAsm.println(";ler do teclado");
 		arqAsm.println("\tmov dx, " + endTemp + "\t;endereco do temporario");
-		arqAsm.println("\tmov al, " + (tamanho+1) + "\t;tamanho do vetor, olhar isso, eu coloquei tamanho + 1");
+		arqAsm.println("\tmov al, " + tamanho + "\t;tamanho do vetor");
 		arqAsm.println("\tmov DS:[" + endTemp + "], al");
 		arqAsm.println("\tmov ah, 0Ah");
 		arqAsm.println("\tint 21h\r\n");

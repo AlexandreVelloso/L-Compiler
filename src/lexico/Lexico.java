@@ -36,7 +36,7 @@ public class Lexico {
             'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y',
             'z', '^', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ' ',
             '_', '.', '\'', '"', ';', '&', ':', '(', ')', '[', ']', '{', '}',
-            '+', '-', '*', '/', '%', ',', '@', '!', '?', '>', '<', '=', '\n'};
+            '+', '-', '*', '/', '%', ',', '@', '!', '?', '>', '<', '=', '\n', '\t'};
 
         for (int i = 0; i < printables.length; i++) {
             if (printables[i] == c) {
@@ -179,8 +179,8 @@ public class Lexico {
                                 token = Token.EQUAL;
                                 break;
                             case ' ':
-                                break;
                             case '\n':
+                            case '\t':
                                 break;
                             case '%':
                                 state = final_state;

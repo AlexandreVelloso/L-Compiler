@@ -8,7 +8,7 @@ public class LC {
     public static void main(String[] args) {
 
         try {
-            String arquivoL = "Exemplo1.l";
+            String arquivoL = "palindrome.l";
             String arquivoASM = "";
 
             /*
