@@ -22,7 +22,6 @@ public class LC {
             
             Programa.getInstance().readProgram("./Arquivos/Exemplos/" + arquivoL);
             Sintatico.principal();
-            System.out.println("OK");
         } catch (Exception e) {
             e.printStackTrace();
         }
