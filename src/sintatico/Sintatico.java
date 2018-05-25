@@ -69,12 +69,17 @@ public class Sintatico {
 
 		codigo.fimVariaveisASM();
 
-		RegistroLexico s = new RegistroLexico();
+		//RegistroLexico s = new RegistroLexico();
 
 		while (token == Token.FOR || token == Token.IF || token == Token.READLN || token == Token.WRITE
 				|| token == Token.WRITELN || token == Token.ID || token == Token.SEMICOLON) {
 			// COMANDO
-			COMANDO(s);
+			COMANDO();
+		}
+		
+		if( token != null ) {
+			System.out.println( pos.getLineNumber()+":fim de arquivo n�o esperado." );
+			throw new Exception();
 		}
 
 		codigo.fimASM();
@@ -92,7 +97,7 @@ public class Sintatico {
 			casaToken(Token.INT);
 
 			tipo = Tipo.INTEIRO;
-		} else if (token == Token.CHAR) {
+		} else {
 			casaToken(Token.CHAR);
 
 			tipo = Tipo.CARACTERE;
@@ -113,7 +118,7 @@ public class Sintatico {
 
 			if (tamanho == 0 || (tipo == Tipo.INTEIRO && tamanho > 2000)
 					|| (tipo == Tipo.CARACTERE && tamanho > 4000)) {
-				System.out.println(pos.getLineNumber() + ":tamanho do vetor excede o máximo permitido. ");
+				System.out.println(pos.getLineNumber() + ":tamanho do vetor excede o maximo permitido. ");
 				throw new Exception();
 			} else {
 				id.setTamanho(tamanho);
@@ -137,6 +142,7 @@ public class Sintatico {
 		while (token == Token.COMMA) {
 			casaToken(Token.COMMA);
 
+			tamanho = 0;
 			varInicializada = false;
 
 			id = result.clone();
@@ -152,15 +158,15 @@ public class Sintatico {
 
 				tamanho = Integer.parseInt(result.getLexema());
 
-				if ((tipo == Tipo.INTEIRO && tamanho > 2000) || (tipo == Tipo.CARACTERE && tamanho > 4000)) {
-					System.out.println(pos.getLineNumber() + ":tamanho do vetor excede o máximo permitido. ");
+				if (tamanho == 0 || (tipo == Tipo.INTEIRO && tamanho > 2000)
+						|| (tipo == Tipo.CARACTERE && tamanho > 4000)) {
+					System.out.println(pos.getLineNumber() + ":tamanho do vetor excede o maximo permitido. ");
 					throw new Exception();
 				} else {
 					id.setTamanho(tamanho);
 				}
 
 				casaToken(Token.CONST);
-
 				casaToken(Token.CLOSE_BRACKET);
 			} else if (token == Token.ATTR) {
 				ATRIBUICAO(id);
@@ -180,6 +186,7 @@ public class Sintatico {
 	}
 
 	public static void ATRIBUICAO(RegistroLexico id) throws Exception {
+		
 		casaToken(Token.ATTR);
 
 		boolean trocarSinal = false;
@@ -205,7 +212,7 @@ public class Sintatico {
 		} else {
 
 			if (trocarSinal) {
-				System.out.println(pos.getLineNumber() + ":tipos incompat�veis");
+				System.out.println(pos.getLineNumber() + ":tipos incompativeis");
 				throw new Exception();
 			}
 
@@ -218,31 +225,30 @@ public class Sintatico {
 	public static void CONSTANTE() throws Exception {
 		Classe classe = Classe.CONSTANTE;
 		int tamanho = 0;
-		int valor = -1;
+		int valor;
 
 		casaToken(Token.FINAL);
 
 		RegistroLexico id = result.clone();
 		id.setTamanho(tamanho);
 		id.setClasse(classe);
+		id.setTipo(result.getTipo());
 
 		casaToken(Token.ID);
 		casaToken(Token.EQUAL);
 
-		id.setTipo(result.getTipo());
-
-		boolean isNegativo = false;
+		boolean trocarSinal = false;
 
 		if (token == Token.SUM) {
 			casaToken(Token.SUM);
 		} else if (token == Token.MINUS) {
 			casaToken(Token.MINUS);
-			isNegativo = true;
+			trocarSinal = true;
 		}
 
 		if (id.getTipo() == Tipo.INTEIRO) {
 			valor = Integer.parseInt(result.getLexema());
-			if (isNegativo) {
+			if (trocarSinal) {
 				valor *= -1;
 			}
 		} else {
@@ -256,278 +262,373 @@ public class Sintatico {
 		casaToken(Token.SEMICOLON);
 	}
 
-	public static void COMANDO(RegistroLexico cmd) throws Exception {
-
-		RegistroLexico id;
-		RegistroLexico temp = new RegistroLexico();
-
-		if (null != token) {
-			switch (token) {
-			case FOR:
-				casaToken(Token.FOR);
-				id = variaveis.getVar(result.getLexema());
-
-				if (id == null) {
-					System.out.println("ERRO: Variavel [" + result.getLexema() + "] nao foi declarada.");
-					throw new Exception("");
-				}
-
+	public static void COMANDO() throws Exception {
+		
+		if( token == Token.FOR ) {
+			
+			casaToken(Token.FOR);
+			RegistroLexico id = variaveis.getVar(result.getLexema());
+			
+			if (id == null) {
+				
+				System.out.println("ERRO: Variavel [" + result.getLexema() + "] nao foi declarada.");
+				throw new Exception();
+				
+			}else if( id.getTipo() != Tipo.INTEIRO ) {
+				
+				System.out.println(pos.getLineNumber() + ":tipos incompativeis");
+				throw new Exception();
+				
+			}else {
+				
 				casaToken(Token.ID);
 				casaToken(Token.ATTR);
-				EXP(cmd);
-
-				id.setEndereco(cmd.getEndereco());
+				
+				RegistroLexico exp = new RegistroLexico();
+				EXP( exp );
+				
+				if( exp.getTipo() != Tipo.INTEIRO ) {
+					System.out.println(pos.getLineNumber() + ":tipos incompativeis");
+					throw new Exception();
+				}
+				
+				id.setEndereco(exp.getEndereco());
 
 				casaToken(Token.TO);
-				EXP(cmd);
-
-				temp.setEndereco(cmd.getEndereco());
-
-				int step;
-				if (token == Token.STEP) {
-					casaToken(Token.STEP);
-
-					step = Integer.parseInt(result.getLexema());
-
-					casaToken(Token.CONST);
-				} else {
-					step = 1;
+				
+				RegistroLexico exp1 = new RegistroLexico();
+				EXP(exp1);
+				
+				RegistroLexico temp = new RegistroLexico();
+				temp.setEndereco( exp1.getEndereco() );
+				
+				if( exp1.getTipo() != Tipo.INTEIRO ) {
+					System.out.println(pos.getLineNumber() + ":tipos incompativeis");
+					throw new Exception();
 				}
-
+				
+				int step = 1;
+				if( token == Token.STEP ) {
+					casaToken( Token.STEP );
+					
+					step = Integer.parseInt( result.getLexema() );
+					
+					casaToken( Token.CONST );
+				}
+				
 				int numRotulo = codigo.novoRotulo();
 				codigo.rotulo(numRotulo);
-
+				
 				casaToken(Token.DO);
 				BLOCO();
-
+				
 				codigo.mov("cx", "DS:[" + id.getEndereco() + "]");
 				codigo.mov("dx", "DS:[" + temp.getEndereco() + "]");
 				codigo.add("cx", "" + step, "incremento do for");
 				codigo.mov("DS:[" + id.getEndereco() + "]", "cx", "retorna o valor de cx para memoria");
 				codigo.cmp("cx", "dx");
 				codigo.jle(numRotulo, "fim for");
-				break;
-			case IF:
-
-				int rotulo0 = codigo.novoRotulo();
-				int rotulo1 = codigo.novoRotulo();
-
-				casaToken(Token.IF);
-				EXP(cmd);
-
-				codigo.comentario("Comeco do if");
-
-				if (cmd.getTipo() != Tipo.RELACIONAL) {
-					System.out.println(pos.getLineNumber() + ":tipos incompat�veis.");
-					throw new Exception();
-				} else {
-
-					codigo.mov("ax", "DS:[" + cmd.getEndereco() + "]", "CMD.end = EXP.end");
-					codigo.cmp("ax", "0");
-					codigo.je(rotulo0, "pula se falso");
-				}
-
-				casaToken(Token.THEN);
-				BLOCO();
-				codigo.jmp(rotulo1, "pula para o fim do if");
-				codigo.rotulo(rotulo0);
-
-				if (token == Token.ELSE) {
-
-					casaToken(Token.ELSE);
-					BLOCO();
-					codigo.comentario("fim do else");
-				}
-
-				codigo.comentario("Fim de if");
-				codigo.rotulo(rotulo1);
-
-				break;
-			case READLN:
-				casaToken(Token.READLN);
-				casaToken(Token.OPEN_PARENTHESIS);
-				id = variaveis.getVar(result.getLexema());
-
-				if (id == null) {
-					System.out.println("ERRO: Variavel [" + result.getLexema() + "] nao foi declarada.");
-					throw new Exception("");
-				}
-
-				casaToken(Token.ID);
-
-				if (token == Token.OPEN_BRACKET) {
-					casaToken(Token.OPEN_BRACKET);
-
-					if (id.getTamanho() == 0) {
-						// erro
-					}
-
-					int endTemp;
-					if (id.getTipo() == Tipo.INTEIRO) {
-						endTemp = codigo.novoTemp(2);
-					} else {
-						endTemp = codigo.novoTemp(1);
-					}
-
-					EXP(cmd);
-
-					if ((cmd.getTipo() == Tipo.INTEIRO && cmd.getTamanho() == 0) == false) {
-						System.out.println(pos.getLineNumber() + ":tipos incompat�veis.");
-						throw new Exception();
-					}
-
-					codigo.mov("ax", "DS:[" + cmd.getEndereco() + "]", "carrega o conteudo de E.end para regA");
-
-					if (cmd.getTipo() == Tipo.INTEIRO) {
-						codigo.add("ax", "ax");
-					}
-
-					codigo.mov("di", "ax");
-					codigo.add("di", "" + id.getEndereco(), "soma o deslocamento");
-					codigo.mov("DS:[" + endTemp + "]", "di", "salva o valor do deslocamento em temp");
-
-					if (id.getTipo() == Tipo.INTEIRO) {
-						codigo.readInt(id.getEndereco(), endTemp);
-					} else {
-						codigo.readChar(endTemp);
-					}
-
-					casaToken(Token.CLOSE_BRACKET);
-				} else {
-					int tamanho;
-
-					if (id.getTipo() == Tipo.INTEIRO) {
-
-						codigo.readInt(id.getEndereco());
-					} else {
-
-						if (id.getTamanho() < 255) {
-							tamanho = id.getTamanho();
-							// olhar isso
-							if (tamanho == 0)
-								tamanho = 1;
-						} else {
-							tamanho = 255;
-						}
-
-						codigo.readString(id.getEndereco(), tamanho);
-					}
-				}
-
-				casaToken(Token.CLOSE_PARENTHESIS);
-				casaToken(Token.SEMICOLON);
-				break;
-			case WRITE:
-				casaToken(Token.WRITE);
-				casaToken(Token.OPEN_PARENTHESIS);
-				EXP(cmd);
-
-				if (cmd.getTipo() == Tipo.INTEIRO) {
-					codigo.mostrarInt(cmd.getEndereco());
-				} else {
-
-					if (cmd.getToken() == Token.ID && cmd.getTamanho() == 0) {
-						codigo.mostrarChar(cmd.getEndereco());
-					} else {
-						codigo.mostrarString(cmd.getEndereco());
-					}
-				}
-
-				while (token == Token.COMMA) {
-					casaToken(Token.COMMA);
-					EXP(cmd);
-
-					if (cmd.getTipo() == Tipo.INTEIRO) {
-						codigo.mostrarInt(cmd.getEndereco());
-					} else {
-						if (cmd.getToken() == Token.ID && cmd.getTamanho() == 0) {
-							codigo.mostrarChar(cmd.getEndereco());
-						} else {
-							codigo.mostrarString(cmd.getEndereco());
-						}
-					}
-				}
-
-				casaToken(Token.CLOSE_PARENTHESIS);
-				casaToken(Token.SEMICOLON);
-				break;
-			case WRITELN:
-				casaToken(Token.WRITELN);
-				casaToken(Token.OPEN_PARENTHESIS);
-				EXP(cmd);
-				
-				if (cmd.getTipo() == Tipo.INTEIRO) {
-					codigo.mostrarInt(cmd.getEndereco());
-				} else {
-					if (cmd.getToken() == Token.ID && cmd.getTamanho() == 0) {
-						codigo.mostrarChar(cmd.getEndereco());
-					} else {
-						codigo.mostrarString(cmd.getEndereco());
-					}
-				}
-
-				while (token == Token.COMMA) {
-					casaToken(Token.COMMA);
-					EXP(cmd);
-
-					if (cmd.getTipo() == Tipo.INTEIRO) {
-						codigo.mostrarInt(cmd.getEndereco());
-					} else {
-
-						if (cmd.getToken() == Token.ID && cmd.getTamanho() == 0) {
-							codigo.mostrarChar(cmd.getEndereco());
-						} else {
-							codigo.mostrarString(cmd.getEndereco());
-						}
-					}
-				}
-
-				codigo.quebrarLinha();
-
-				casaToken(Token.CLOSE_PARENTHESIS);
-				casaToken(Token.SEMICOLON);
-				break;
-			case ID:
-
-				// pega a variavel da memoria
-				id = variaveis.getVar(result.getLexema());
-
-				if (id == null) {
-					System.out.println("ERRO: Variavel [" + result.getLexema() + "] nao foi declarada.");
-					throw new Exception("");
-				}
-
-				casaToken(Token.ID);
-				casaToken(Token.ATTR);
-				EXP(cmd);
-
-				if (id.getTipo() == cmd.getTipo()) {
-
-					if (id.getClasse() == Classe.CONSTANTE) {
-						System.out.println(pos.getLineNumber() + ":classe de identificador incompat�vel ["
-								+ id.getLexema() + "].");
-						throw new Exception();
-					}
-
-					// Copia o valor de CMD.end para regA
-					codigo.mov("ax", "DS:[" + cmd.getEndereco() + "]", "Copia o valor de E.end para regA");
-					// Copia o valor de regA para ID.end
-					codigo.mov("DS:[" + id.getEndereco() + "]", "ax", "Copia o valor de regA para ID.end");
-
-				} else {
-					System.out.println("ERRO: tipos incompativeis");
-					throw new Exception();
-				}
-
-				casaToken(Token.SEMICOLON);
-				break;
-			case SEMICOLON:
-				casaToken(Token.SEMICOLON);
-				break;
-			default:
-
-				break;
 			}
+			
+		}else if( token == Token.IF ) {
+			
+			int rotulo0 = codigo.novoRotulo();
+			int rotulo1 = codigo.novoRotulo();
+			
+			casaToken( Token.IF );
+			RegistroLexico exp = new RegistroLexico();
+			EXP(exp);
+			
+			codigo.comentario("Comeco do if");
+			
+			if( exp.getTipo() != Tipo.RELACIONAL ) {
+				System.out.println(pos.getLineNumber() + ":tipos incompativeis");
+				throw new Exception();
+			}
+			
+			codigo.mov("ax", "DS:[" + exp.getEndereco() + "]", "CMD.end = EXP.end");
+			codigo.cmp("ax", "0");
+			codigo.je(rotulo0, "pula se falso");
+			
+			casaToken( Token.THEN );
+			BLOCO();
+			
+			codigo.jmp(rotulo1, "pula para o fim do if");
+			codigo.rotulo(rotulo0);
+			
+			if( token == Token.ELSE ) {
+				casaToken( Token.ELSE );
+				BLOCO();
+				codigo.comentario("fim do else");
+			}
+			
+			codigo.comentario("Fim de if");
+			codigo.rotulo(rotulo1);
+			
+		}else if( token == Token.READLN ) {
+			
+			casaToken( Token.READLN );
+			casaToken( Token.OPEN_PARENTHESIS );
+			
+			RegistroLexico id = variaveis.getVar(result.getLexema());
+			
+			if( id == null ) {
+				System.out.println("ERRO: Variavel [" + result.getLexema() + "] nao foi declarada.");
+				throw new Exception();
+			}
+			
+			casaToken( Token.ID );
+			
+			if( token == Token.OPEN_BRACKET ) {
+				
+				if( id.getTamanho() == 0 ) {
+					System.out.println( pos.getLineNumber()+":tamanho do vetor excede o maximo permitido.");
+					throw new Exception();
+				}
+				
+				casaToken( Token.OPEN_BRACKET );
+				
+				int endTemp;
+				if( id.getTipo() == Tipo.INTEIRO ) {
+					endTemp = codigo.novoTemp(2);
+				}else {
+					endTemp = codigo.novoTemp(1);
+				}
+				
+				RegistroLexico exp = new RegistroLexico();
+				EXP( exp );
+				
+				if( exp.getTipo() != Tipo.INTEIRO || exp.getTamanho() == 0 ) {
+					System.out.println(pos.getLineNumber() + ":tipos incompativeis");
+					throw new Exception();
+				}
+				
+				codigo.mov("ax", "DS:[" + exp.getEndereco() + "]", "carrega o conteudo de E.end para regA");
+				
+				if( exp.getTipo() == Tipo.INTEIRO ) {
+					codigo.add("ax", "ax");
+				}
+				
+				codigo.mov("di", "ax");
+				codigo.add("di", "" + id.getEndereco(), "soma o deslocamento");
+				codigo.mov("DS:[" + endTemp + "]", "di", "salva o valor do deslocamento em temp");
+				
+				if( id.getTipo() == Tipo.INTEIRO ) {
+					codigo.readInt(id.getEndereco(), endTemp );
+				}else {
+					codigo.readChar( endTemp );
+				}
+				
+				casaToken( Token.CLOSE_BRACKET );
+				
+			}else // nao abriu []
+			{
+				
+				if( id.getTipo() == Tipo.INTEIRO ) {
+					codigo.readInt( id.getEndereco() );
+				}else{
+			
+					int tamanho;
+					if( id.getTamanho() < 255 ) {
+						tamanho = id.getTamanho();
+						
+						// olhar isso
+						if( tamanho == 0 ) {
+							tamanho = 1;
+						}
+					}else {
+						tamanho = 255;
+					}
+					
+					codigo.readString(id.getEndereco(), tamanho);
+				}
+			}
+			
+			casaToken( Token.CLOSE_PARENTHESIS );
+			casaToken( Token.SEMICOLON );
+			
+		}else if( token == Token.WRITE ) {
+			
+			casaToken( Token.WRITE );
+			casaToken( Token.OPEN_PARENTHESIS );
+			
+			RegistroLexico exp = new RegistroLexico();
+			EXP(exp);
+			
+			if( exp.getTipo() == Tipo.INTEIRO ) {
+				
+				if( exp.getTamanho() != 0 ) {
+					System.out.println(pos.getLineNumber() + ":tipos incompativeis");
+					throw new Exception();
+				}
+				
+				codigo.mostrarInt( exp.getEndereco() );
+			}else if( exp.getTipo() == Tipo.CARACTERE ) {
+				
+				if( exp.getToken() == Token.ID ) {
+					
+					if( exp.getTamanho() == 0 ) {
+						codigo.mostrarChar( exp.getEndereco() );
+					}else {
+						System.out.println("Olhar como mostrar array de String");
+					}
+				}else {
+					codigo.mostrarString( exp.getEndereco() );
+				}
+				
+			}else {
+				// OBS: Olhar isso aqui, se posso mostrar tipo relacional
+				System.out.println("Devo mostrar tipo relacional?");
+			}
+			
+			while( token == Token.COMMA ) {
+				casaToken( Token.COMMA );
+				exp = new RegistroLexico();
+				EXP(exp);
+				
+				if( exp.getTipo() == Tipo.INTEIRO ) {
+					
+					if( exp.getTamanho() != 0 ) {
+						System.out.println(pos.getLineNumber() + ":tipos incompativeis");
+						throw new Exception();
+					}
+					
+					codigo.mostrarInt( exp.getEndereco() );
+				}else if( exp.getTipo() == Tipo.CARACTERE ) {
+					
+					if( exp.getToken() == Token.ID ) {
+						
+						if( exp.getTamanho() == 0 ) {
+							codigo.mostrarChar( exp.getEndereco() );
+						}else {
+							System.out.println("Olhar como mostrar array de String");
+						}
+					}else {
+						codigo.mostrarString( exp.getEndereco() );
+					}
+					
+				}else {
+					// OBS: Olhar isso aqui, se posso mostrar tipo relacional
+					System.out.println("Devo mostrar tipo relacional?");
+				}
+			}
+			
+			casaToken( Token.CLOSE_PARENTHESIS );
+			casaToken( Token.SEMICOLON );
+			
+		}else if( token == Token.WRITELN ) {
+			
+			casaToken( Token.WRITELN );
+			casaToken( Token.OPEN_PARENTHESIS );
+			
+			RegistroLexico exp = new RegistroLexico();
+			EXP(exp);
+			
+			if( exp.getTipo() == Tipo.INTEIRO ) {
+				
+				if( exp.getTamanho() != 0 ) {
+					System.out.println(pos.getLineNumber() + ":tipos incompativeis");
+					throw new Exception();
+				}
+				
+				codigo.mostrarInt( exp.getEndereco() );
+			}else if( exp.getTipo() == Tipo.CARACTERE ) {
+				
+				if( exp.getToken() == Token.ID ) {
+					
+					if( exp.getTamanho() == 0 ) {
+						codigo.mostrarChar( exp.getEndereco() );
+					}else {
+						System.out.println("Olhar como mostrar array de String");
+					}
+				}else {
+					codigo.mostrarString( exp.getEndereco() );
+				}
+				
+			}else {
+				// OBS: Olhar isso aqui, se posso mostrar tipo relacional
+				System.out.println("Devo mostrar tipo relacional?");
+			}
+			
+			while( token == Token.COMMA ) {
+				casaToken( Token.COMMA );
+				exp = new RegistroLexico();
+				EXP(exp);
+				
+				if( exp.getTipo() == Tipo.INTEIRO ) {
+					
+					if( exp.getTamanho() != 0 ) {
+						System.out.println(pos.getLineNumber() + ":tipos incompativeis");
+						throw new Exception();
+					}
+					
+					codigo.mostrarInt( exp.getEndereco() );
+				}else if( exp.getTipo() == Tipo.CARACTERE ) {
+					
+					if( exp.getToken() == Token.ID ) {
+						
+						if( exp.getTamanho() == 0 ) {
+							codigo.mostrarChar( exp.getEndereco() );
+						}else {
+							System.out.println("Olhar como mostrar array de String");
+						}
+					}else {
+						codigo.mostrarString( exp.getEndereco() );
+					}
+					
+				}else {
+					// OBS: Olhar isso aqui, se posso mostrar tipo relacional
+					System.out.println("Devo mostrar tipo relacional?");
+				}
+			}
+			
+			codigo.quebrarLinha();
+			
+			casaToken( Token.CLOSE_PARENTHESIS );
+			casaToken( Token.SEMICOLON );
+			
+		}else if( token == Token.ID ) {
+			
+			// pega a variavel da memoria
+			RegistroLexico id = variaveis.getVar(result.getLexema());
+
+			if (id == null) {
+				System.out.println("ERRO: Variavel [" + result.getLexema() + "] nao foi declarada.");
+				throw new Exception("");
+			}
+
+			casaToken(Token.ID);
+			casaToken(Token.ATTR);
+
+			RegistroLexico exp = new RegistroLexico();
+			EXP(exp);
+
+			if (id.getTipo() == exp.getTipo()) {
+
+				if (id.getClasse() == Classe.CONSTANTE) {
+					System.out.println(pos.getLineNumber() + ":classe de identificador incompativel ["
+							+ id.getLexema() + "].");
+					throw new Exception();
+				}
+
+				// Copia o valor de EXP.end para regA
+				codigo.mov("ax", "DS:[" + exp.getEndereco() + "]", "Copia o valor de E.end para regA");
+				// Copia o valor de regA para ID.end
+				codigo.mov("DS:[" + id.getEndereco() + "]", "ax", "Copia o valor de regA para ID.end");
+
+			} else {
+				System.out.println("ERRO: tipos incompativeis");
+				throw new Exception();
+			}
+
+			casaToken(Token.SEMICOLON);
+
+		}else if( token == Token.SEMICOLON ) {
+			
+			casaToken(Token.SEMICOLON);
+
+		}else {
+			error();
 		}
 
 	}
@@ -540,15 +641,15 @@ public class Sintatico {
 			while (token == Token.FOR || token == Token.IF || token == Token.READLN || token == Token.WRITE
 					|| token == Token.WRITELN || token == Token.ID || token == Token.SEMICOLON) {
 				
-				RegistroLexico bloco = new RegistroLexico();
-				COMANDO(bloco);
+				//RegistroLexico bloco = new RegistroLexico();
+				COMANDO();
 			}
 			
 			casaToken(Token.END);
 		} else {
 			
-			RegistroLexico bloco = new RegistroLexico();
-			COMANDO(bloco);
+			//RegistroLexico bloco = new RegistroLexico();
+			COMANDO();
 		}
 	}
 
@@ -556,152 +657,60 @@ public class Sintatico {
 
 		EXPS(exp);
 
-		RegistroLexico exp1 = new RegistroLexico();
-		int novoTemp = -1;
-		int rotulo0 = -1;
-		int rotulo1 = -1;
+		if(
+			token == Token.LESS || token == Token.GREATHER || token == Token.LESS_EQUALS ||
+			token == Token.GREATHER_EQUAL || token == Token.EQUAL || token == Token.DIFFERENT
+		){
 
-		if (null != token) {
-			switch (token) {
-			case LESS:
-				casaToken(Token.LESS);
-				EXPS(exp1);
+			RegistroLexico exp1 = new RegistroLexico();
+			EXPS(exp1);
 
-				novoTemp = codigo.novoTemp(2);
-				rotulo0 = codigo.novoRotulo();
-				rotulo1 = codigo.novoRotulo();
-
-				// verificar tipos antes
-				codigo.mov("ax", "DS:[" + exp.getEndereco() + "]", "carrega EXP.end para regA");
-				codigo.mov("bx", "DS:[" + exp1.getEndereco() + "]", "carrega EXP.end para regB");
-				codigo.cmp("ax", "bx");
-				codigo.jge(rotulo0, "Jump se falso");
-				codigo.mov("ax", "1", "true");
-				codigo.jmp(rotulo1, "pula para o final do if");
-				codigo.rotulo(rotulo0);
-				codigo.mov("ax", "0", "false");
-				codigo.rotulo(rotulo1);
-				codigo.mov("DS:[" + novoTemp + "]", "ax", "salva valor da exp na memoria");
-
-				exp.setEndereco(novoTemp);
-				exp.setTipo(Tipo.RELACIONAL);
-				break;
-			case GREATHER:
-				casaToken(Token.GREATHER);
-				EXPS(exp1);
-
-				novoTemp = codigo.novoTemp(2);
-				rotulo0 = codigo.novoRotulo();
-				rotulo1 = codigo.novoRotulo();
-
-				// verificar tipos antes
-				codigo.mov("ax", "DS:[" + exp.getEndereco() + "]", "carrega EXP.end para regA");
-				codigo.mov("bx", "DS:[" + exp1.getEndereco() + "]", "carrega EXP.end para regB");
-				codigo.cmp("ax", "bx");
-				codigo.jle(rotulo0, "Jump se falso");
-				codigo.mov("ax", "1", "true");
-				codigo.jmp(rotulo1, "pula para o final do if");
-				codigo.rotulo(rotulo0);
-				codigo.mov("ax", "0", "false");
-				codigo.rotulo(rotulo1);
-				codigo.mov("DS:[" + novoTemp + "]", "ax", "salva valor da exp na memoria");
-
-				exp.setEndereco(novoTemp);
-				exp.setTipo(Tipo.RELACIONAL);
-				break;
-			case LESS_EQUALS:
-				casaToken(Token.LESS_EQUALS);
-				EXPS(exp1);
-				novoTemp = codigo.novoTemp(2);
-				rotulo0 = codigo.novoRotulo();
-				rotulo1 = codigo.novoRotulo();
-
-				// verificar tipos antes
-				codigo.mov("ax", "DS:[" + exp.getEndereco() + "]", "carrega EXP.end para regA");
-				codigo.mov("bx", "DS:[" + exp1.getEndereco() + "]", "carrega EXP.end para regB");
-				codigo.cmp("ax", "bx");
-				codigo.jg(rotulo0, "Jump se falso");
-				codigo.mov("ax", "1", "true");
-				codigo.jmp(rotulo1, "pula para o final do if");
-				codigo.rotulo(rotulo0);
-				codigo.mov("ax", "0", "false");
-				codigo.rotulo(rotulo1);
-				codigo.mov("DS:[" + novoTemp + "]", "ax", "salva valor da exp na memoria");
-
-				exp.setEndereco(novoTemp);
-				exp.setTipo(Tipo.RELACIONAL);
-				break;
-			case GREATHER_EQUAL:
-				casaToken(Token.GREATHER_EQUAL);
-				EXPS(exp1);
-				novoTemp = codigo.novoTemp(2);
-				rotulo0 = codigo.novoRotulo();
-				rotulo1 = codigo.novoRotulo();
-
-				// verificar tipos antes
-				codigo.mov("ax", "DS:[" + exp.getEndereco() + "]", "carrega EXP.end para regA");
-				codigo.mov("bx", "DS:[" + exp1.getEndereco() + "]", "carrega EXP.end para regB");
-				codigo.cmp("ax", "bx");
-				codigo.jl(rotulo0, "Jump se falso");
-				codigo.mov("ax", "1", "true");
-				codigo.jmp(rotulo1, "pula para o final do if");
-				codigo.rotulo(rotulo0);
-				codigo.mov("ax", "0", "false");
-				codigo.rotulo(rotulo1);
-				codigo.mov("DS:[" + novoTemp + "]", "ax", "salva valor da exp na memoria");
-
-				exp.setEndereco(novoTemp);
-				exp.setTipo(Tipo.RELACIONAL);
-				break;
-			case EQUAL:
-				casaToken(Token.EQUAL);
-				EXPS(exp1);
-
-				novoTemp = codigo.novoTemp(2);
-				rotulo0 = codigo.novoRotulo();
-				rotulo1 = codigo.novoRotulo();
-
-				// verificar tipos antes
-				codigo.mov("ax", "DS:[" + exp.getEndereco() + "]", "carrega EXP.end para regA");
-				codigo.mov("bx", "DS:[" + exp1.getEndereco() + "]", "carrega EXP.end para regB");
-				codigo.cmp("ax", "bx");
-				codigo.jne(rotulo0, "Jump se falso");
-				codigo.mov("ax", "1", "true");
-				codigo.jmp(rotulo1, "pula para o final do if");
-				codigo.rotulo(rotulo0);
-				codigo.mov("ax", "0", "false");
-				codigo.rotulo(rotulo1);
-				codigo.mov("DS:[" + novoTemp + "]", "ax", "salva valor da exp na memoria");
-
-				exp.setEndereco(novoTemp);
-				exp.setTipo(Tipo.RELACIONAL);
-				break;
-			case DIFFERENT:
-				casaToken(Token.DIFFERENT);
-				EXPS(exp1);
-
-				novoTemp = codigo.novoTemp(2);
-				rotulo0 = codigo.novoRotulo();
-				rotulo1 = codigo.novoRotulo();
-
-				// verificar tipos antes
-				codigo.mov("ax", "DS:[" + exp.getEndereco() + "]", "carrega EXP.end para regA");
-				codigo.mov("bx", "DS:[" + exp1.getEndereco() + "]", "carrega EXP.end para regB");
-				codigo.cmp("ax", "bx");
-				codigo.je(rotulo0, "Jump se falso");
-				codigo.mov("ax", "1", "true");
-				codigo.jmp(rotulo1, "pula para o final do if");
-				codigo.rotulo(rotulo0);
-				codigo.mov("ax", "0", "false");
-				codigo.rotulo(rotulo1);
-				codigo.mov("DS:[" + novoTemp + "]", "ax", "salva valor da exp na memoria");
-
-				exp.setEndereco(novoTemp);
-				exp.setTipo(Tipo.RELACIONAL);
-				break;
-			default:
-				return;
+			if( exp.getTipo() == Tipo.RELACIONAL || exp1.getTipo() == Tipo.RELACIONAL ||
+				exp.getTipo() != exp1.getTipo() ){
+				System.out.println("ERRO: tipos incompativeis");
+				throw new Exception();
 			}
+
+			// Olhar as verificacoes com vetores
+
+			int novoTemp = codigo.novoTemp(2);
+			int rotulo0 = codigo.novoRotulo();
+			int rotulo1 = codigo.novoRotulo();
+
+			codigo.mov("ax", "DS:[" + exp.getEndereco() + "]", "carrega EXP.end para regA");
+			codigo.mov("bx", "DS:[" + exp1.getEndereco() + "]", "carrega EXP.end para regB");
+			codigo.cmp("ax", "bx");
+
+			switch( token ){
+				case LESS:
+					codigo.jge(rotulo0, "Jump se falso");
+					break;
+				case GREATHER:
+					codigo.jle(rotulo0, "Jump se falso");
+					break;
+				case LESS_EQUALS:
+					codigo.jg(rotulo0, "Jump se falso");
+					break;
+				case GREATHER_EQUAL:
+					codigo.jl(rotulo0, "Jump se falso");
+					break;
+				case EQUAL:
+					codigo.jne(rotulo0, "Jump se falso");
+					break;
+				case DIFFERENT:
+					codigo.je(rotulo0, "Jump se falso");
+					break;
+				default:
+					System.out.println("");
+					throw new Exception();
+			}
+
+			codigo.mov("ax", "1", "true");
+			codigo.jmp(rotulo1, "pula para o final do if");
+			codigo.rotulo(rotulo0);
+			codigo.mov("ax", "0", "false");
+			codigo.rotulo(rotulo1);
+			codigo.mov("DS:[" + novoTemp + "]", "ax", "salva valor da exp na memoria");
 		}
 
 	}
@@ -748,8 +757,7 @@ public class Sintatico {
 			final int OR = 2;
 			int operador = -1;
 
-			if (null != token) {
-				switch (token) {
+			switch (token) {
 				case SUM:
 					casaToken(Token.SUM);
 					operador = SOMA;
@@ -763,13 +771,29 @@ public class Sintatico {
 					operador = OR;
 					break;
 				default:
+					error();
 					break;
-				}
 			}
 
 			RegistroLexico t2 = new RegistroLexico();
-
 			T(t2);
+
+			if( exps.getTipo() != t2.getTipo() ){
+				
+				System.out.println(pos.getLineNumber() + ":tipos incompativeis.");
+				throw new Exception();
+
+			}else if( operador == OR && ( exps.getTipo() != Tipo.RELACIONAL || t2.getTipo() != Tipo.RELACIONAL ) ){
+				
+				System.out.println(pos.getLineNumber() + ":tipos incompativeis.");
+				throw new Exception();
+
+			}else if( exps.getTipo() == Tipo.RELACIONAL || t2.getTipo() == Tipo.RELACIONAL ){
+
+				System.out.println(pos.getLineNumber() + ":tipos incompativeis.");
+				throw new Exception();
+
+			}
 
 			// carrega o conteudo de E.end para regA
 			codigo.mov("ax", "DS:[" + exps.getEndereco() + "]", "carrega E.end para regA");
@@ -799,6 +823,9 @@ public class Sintatico {
 				codigo.mov("ax","0","resultado falso");
 				codigo.rotulo(rotulo2);
 				break;
+			default:
+				System.out.println("Operador invalido");
+				throw new Exception();
 			}
 
 			// E.end = NovoTemp
@@ -822,8 +849,7 @@ public class Sintatico {
 			final int MOD = 3;
 			int operador = -1;
 
-			if (null != token) {
-				switch (token) {
+			switch (token) {
 				case DIVIDE:
 					casaToken(Token.DIVIDE);
 					operador = DIVISAO;
@@ -841,12 +867,29 @@ public class Sintatico {
 					operador = MOD;
 					break;
 				default:
+					System.out.println("Operador invalido");
 					break;
-				}
 			}
 
 			RegistroLexico f2 = new RegistroLexico();
 			F(f2);
+
+			if( t.getTipo() != f2.getTipo() ){
+				
+				System.out.println(pos.getLineNumber() + ":tipos incompativeis.");
+				throw new Exception();
+
+			}else if( operador == AND && ( t.getTipo() != Tipo.RELACIONAL || f2.getTipo() != Tipo.RELACIONAL ) ){
+				
+				System.out.println(pos.getLineNumber() + ":tipos incompativeis.");
+				throw new Exception();
+
+			}else if( t.getTipo() == Tipo.RELACIONAL || f2.getTipo() == Tipo.RELACIONAL ){
+
+				System.out.println(pos.getLineNumber() + ":tipos incompativeis.");
+				throw new Exception();
+
+			}
 
 			// carrega o conteudo de T.end no regA
 			codigo.mov("ax", "DS:[" + t.getEndereco() + "]", "carrega T.end para regA");
@@ -855,6 +898,7 @@ public class Sintatico {
 
 			switch (operador) {
 			case DIVISAO:
+				codigo.mov("dx", "0", "estende 32bits p/ div.");
 				codigo.idiv("bx", "divide ax por bx");
 				break;
 			case MULTIPLICACAO:
@@ -864,6 +908,7 @@ public class Sintatico {
 				codigo.imul("bx", "O operador and sera' a multiplicacao de ax com bx");
 				break;
 			case MOD:
+				codigo.mov("dx", "0", "estende 32bits p/ div.");
 				codigo.idiv("bx", "divide ax por bx para fazer o mod");
 				codigo.mov("ax", "dx", "Copia o resto da divisao para ax");
 				break;
@@ -879,121 +924,116 @@ public class Sintatico {
 
 	public static void F(RegistroLexico f) throws Exception {
 
-		if (null == token) {
-			// OLHAR
-			error();
-		} else
-			switch (token) {
-			case OPEN_PARENTHESIS:
-				casaToken(Token.OPEN_PARENTHESIS);
-				EXP(f);
-				casaToken(Token.CLOSE_PARENTHESIS);
-				break;
-			case NOT:
-				casaToken(Token.NOT);
-				F(f);
-				codigo.mov("ax", "DS:["+f.getEndereco()+"]", "Copia valor de F.end");
-				codigo.neg("ax", "nego ax");
-				int temp = codigo.novoTemp(2);
-				codigo.mov("DS:["+temp+"]", "ax", "copia o valor de ax negado para o novoTemp");
-				f.setEndereco( temp );
-				break;
-			case CONST:
-				f.setTipo(result.getTipo());
-				f.setClasse(result.getClasse());
-				f.setTamanho(0);// eu acho que aqui sempre sera 0
-				f.setToken(Token.CONST);
-				if (f.getTipo() == Tipo.INTEIRO) {
+		if( token == Token.OPEN_PARENTHESIS ){
 
-					int valor;
+			casaToken(Token.OPEN_PARENTHESIS);
+			EXP(f);
+			casaToken(Token.CLOSE_PARENTHESIS);
 
-					// F.end = NovoTemp
-					f.setEndereco(codigo.novoTemp(2));
-					valor = Integer.parseInt(result.getLexema());
+		}else if( token == Token.NOT ){
 
-					// mov regA, imed
-					codigo.mov("ax", "" + valor, "Valor a ser copiado para o temporario");
-					// mov F.end, regA
-					codigo.mov("DS:[" + f.getEndereco() + "]", "ax", "copia constante para temporario");
-				} else {
+			casaToken(Token.NOT);
+			EXP(f);
 
-					result.setTamanho(result.getLexema().length() - 2);
-
-					// F.end = NovoTemp
-					f.setEndereco(codigo.novaVariavel(result.getTamanho() + 1));
-
-					String valor = result.getLexema().substring(1, result.getTamanho() + 1);
-
-					// copia String para o seu temporario
-					codigo.stringToTemp(valor, "const string em " + f.getEndereco() + "");
-				}
-				casaToken(Token.CONST);
-				break;
-			case ID:
-				RegistroLexico id = variaveis.getVar(result.getLexema());
-				if (id == null) {
-					System.out.println("ERRO: Variavel [" + result.getLexema() + "] nao foi declarada.");
-					throw new Exception("");
-				}
-				f.setClasse(result.getClasse());
-				// F.end = id.end
-				f.setEndereco(id.getEndereco());
-				// F.tipo = id.tipo
-				f.setTipo(id.getTipo());
-				// F.tam = id.tam
-				f.setTamanho(id.getTamanho());
-				f.setToken(Token.ID);
-				casaToken(Token.ID);
-				
-				boolean indice = false;
-				RegistroLexico f1 = new RegistroLexico();
-
-				if (token == Token.OPEN_BRACKET) {
-					indice = true;
-					
-					casaToken(Token.OPEN_BRACKET);
-					EXP(f1);
-					
-					if( f1.getTipo() == Tipo.INTEIRO ) {
-						f.setTamanho(0);
-					}else if( f1.getTipo() == Tipo.CARACTERE ) {
-						f.setTamanho(0);
-					}else {	
-						System.out.println("ERRO");
-						throw new Exception();
-					}
-					
-					casaToken(Token.CLOSE_BRACKET);
-				}
-				
-				if( indice ) {
-					
-					if( id.getTipo() == Tipo.INTEIRO ) {
-						codigo.mov("di", "DS:["+f1.getEndereco()+"]");
-						codigo.add("di", "di");
-						codigo.add("di", ""+id.getEndereco());
-						codigo.mov("ax", "DS:[di]");
-						f.setEndereco( codigo.novoTemp(2) );
-						codigo.mov("DS:["+f.getEndereco()+"]", "ax");
-					}else if( id.getTipo() == Tipo.CARACTERE ) {
-						codigo.mov("di", "DS:["+f1.getEndereco()+"]");
-						codigo.add("di", ""+id.getEndereco());
-						codigo.mov("ax", "DS:[di]");
-						f.setEndereco( codigo.novoTemp(1) );
-						codigo.mov("DS:["+f.getEndereco()+"]", "ax");
-					}else {
-						System.out.println("ERRO");
-						throw new Exception();
-					}
-					
-				}
-
-				break;
-			default:
-				// OLHAR
-				error();
-				break;
+			if( f.getTipo() != Tipo.INTEIRO && f.getTamanho() != 0 ){
+				System.out.println(pos.getLineNumber() + ":tipos incompativeis.");
+				throw new Exception();
 			}
+
+			codigo.mov("ax", "DS:["+f.getEndereco()+"]", "Copia valor de F.end");
+			codigo.neg("ax", "nego ax");
+			int temp = codigo.novoTemp(2);
+			codigo.mov("DS:["+temp+"]", "ax", "copia o valor de ax negado para o novoTemp");
+			f.setEndereco( temp );
+
+		}else if( token == Token.CONST ){
+
+			f.setTipo(result.getTipo());
+			f.setTamanho(0);// eu acho que aqui sempre sera 0
+			f.setToken(Token.CONST);
+
+			if (f.getTipo() == Tipo.INTEIRO) {
+
+				int valor;
+
+				// F.end = NovoTemp
+				f.setEndereco(codigo.novoTemp(2));
+				valor = Integer.parseInt(result.getLexema());
+
+				// mov regA, imed
+				codigo.mov("ax", "" + valor, "Valor a ser copiado para o temporario");
+				// mov F.end, regA
+				codigo.mov("DS:[" + f.getEndereco() + "]", "ax", "copia constante para temporario");
+			} else {
+
+				result.setTamanho(result.getLexema().length() - 2);
+
+				// F.end = NovoTemp
+				f.setEndereco(codigo.novaVariavel(result.getTamanho() + 1));
+
+				String valor = result.getLexema().substring(1, result.getTamanho() + 1);
+
+				// copia String para o seu temporario
+				codigo.stringToTemp(valor, "const string em " + f.getEndereco() + "");
+			}
+			casaToken(Token.CONST);
+
+		}else if( token == Token.ID ){
+
+			RegistroLexico id = variaveis.getVar(result.getLexema());
+			if (id == null) {
+				System.out.println("ERRO: Variavel [" + result.getLexema() + "] nao foi declarada.");
+				throw new Exception("");
+			}
+			f.setClasse(id.getClasse());
+			// F.tipo = id.tipo
+			f.setTipo(id.getTipo());
+			// F.end = id.end
+			f.setEndereco(id.getEndereco());
+			// F.tam = id.tam
+			f.setTamanho(id.getTamanho());
+			// OBS: olhar esse token aqui
+			f.setToken(Token.ID);
+
+			casaToken(Token.ID);
+
+			if (token == Token.OPEN_BRACKET) {
+				
+				casaToken(Token.OPEN_BRACKET);
+
+				RegistroLexico exp = new RegistroLexico();
+				EXP( exp );
+
+				if( exp.getTipo() != Tipo.INTEIRO && exp.getTamanho() != 0 ){
+					System.out.println(pos.getLineNumber() + ":tipos incompativeis.");
+					throw new Exception();
+				}
+
+				if( id.getTipo() == Tipo.INTEIRO ) {
+					codigo.mov("di", "DS:["+exp.getEndereco()+"]");
+					codigo.add("di", "di");
+					codigo.add("di", ""+id.getEndereco());
+					codigo.mov("ax", "DS:[di]");
+					f.setEndereco( codigo.novoTemp(2) );
+					codigo.mov("DS:["+f.getEndereco()+"]", "ax");
+				}else if( id.getTipo() == Tipo.CARACTERE ) {
+					codigo.mov("di", "DS:["+exp.getEndereco()+"]");
+					codigo.add("di", ""+id.getEndereco());
+					codigo.mov("ax", "DS:[di]");
+					f.setEndereco( codigo.novoTemp(1) );
+					codigo.mov("DS:["+f.getEndereco()+"]", "ax");
+				}else {
+					System.out.println("ERRO");
+					throw new Exception();
+				}
+				
+				casaToken(Token.CLOSE_BRACKET);
+			}
+			
+		}else{
+			error();
+		}
+		
 	}
 
 }

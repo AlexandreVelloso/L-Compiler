@@ -1,11 +1,11 @@
 VARIAVEL -> (int (1) |char (2) ) id (4) [ "["const (3) "]" | (8) ATRIBUICAO ] { ,id (4) [ "["const (3) "]" | (8) ATRIBUICAO] };
 ATRIBUICAO -> <- [+|- (6) ] const (7)
-CONSTANTE -> final id = [+|- (6) ] const (7) ;
+CONSTANTE -> (5) final id = [+|- (6) ] const (7) ;
 
 COMANDO ->
-           for id (9) <- EXP (10) to EXP (10) [step const (11)] do BLOCO |
+           for id (9) <- EXP (10) to EXP¹ (10) [step const (11)] do BLOCO |
            if EXP (12) then BLOCO [else BLOCO] |
-           readln "(" id[ "[" EXP (10) "]" ] ")"; |
+           readln "(" id[ "[" (31) EXP (32) "]" ] ")"; |
            write "(" EXP (13) {,EXP (13) } ")"; |
            writeln "(" EXP (13) { ,EXP (13) } ")"; |
            id <- EXP (14); |
@@ -25,10 +25,12 @@ F    -> "("EXP (24) ")" | not F¹ (25) | const (26) | id (27) [ (28) "["EXP (29)
         (const.val > 4000 && VARIAVEL.tipo == char ) então
             ERRO
     senao
-        var.tamanho = const.val * tamanho do VARIAVEL.tipo
+        var.tamanho = const.val
     }
-(4){ id.tamanho = 0
-     id.classe = VARIAVEL }
+(4){ 
+     id.tipo = VARIAVEL.tipo
+     id.tamanho = 0
+     id.classe = variavel }
 (5){ id.tamanho = 0
      id.classe = CONSTANTE }
 (6){ negar = true }
@@ -38,44 +40,58 @@ F    -> "("EXP (24) ")" | not F¹ (25) | const (26) | id (27) [ (28) "["EXP (29)
         senão
             negar valor }
 (8){ ATRIBUICAO.id = VARIAVEL.id }
-
-(9){ se id.tipo != inteiro então
-        ERRO }
+(9){ 
+     se nao existe id então
+        ERRO
+     senão se id.tipo != inteiro então
+        ERRO
+   }
         
 (10){ se EXP.tipo != inteiro então
-        ERRO }
+        ERRO
+      senão
+        id.end = EXP.end
+    }
 
 (11){ se const.tipo != inteiro então
         ERRO }
 
 (12){ se EXP.tipo != relacional então
-        ERRO }
-
+        ERRO
+    }
 (13){ // Posso mostrar o tipo relacional tambem?
-     se EXP.tipo == relacional então
-        ERRO }
+     se EXP.tipo == inteiro && EXP.tamanho != 0 então
+        ERRO
+     senão se EXP.tipo == relacional então
+        ERRO? }
 
 (14){ se id.tipo != EXP.tipo então
         ERRO
      senão se EXP.tipo == relacional então
         ERRO
+     senão se id.classe == constante então
+        ERRO
      senão
         id.end = EXP.end
    }
 
-(15){ EXP.tipo = RELACIONAL }
+(15){ exp.tipo = relacional }
 (16){ EXP.end = EXPS.end
      EXP.tipo = EXPS.tipo }
 
-(17){ se EXP.tipo != EXPS¹.tipo então
+(17){ 
+    se EXP.tipo == relacional || EXPS¹.tipo == relacional então
         ERRO
-     senão se EXP.tipo != relacional então
-        ERRO }
+    se EXP.tipo != EXPS¹.tipo então
+        ERRO
+    senão
+        Olhar como tratar os vetores
+    }
 
 (18){ negar = true }
 (19){ EXPS.tipo = T.tipo
      EXPS.end = T.end
-     se negar && EXPS.tipo != inteiro então
+     se negar && !( EXPS.tipo == inteiro && exps.tamanho == 0 ) então
         ERRO
     }
 
@@ -86,7 +102,7 @@ F    -> "("EXP (24) ")" | not F¹ (25) | const (26) | id (27) [ (28) "["EXP (29)
         ERRO
      senão se operacao == (+|-) && T.tipo == relacional
         ERRO
-     senão se operacao == and && T.tipo != relacional
+     senão se operacao == or && T.tipo != relacional
         ERRO
     }
 
@@ -102,17 +118,25 @@ F    -> "("EXP (24) ")" | not F¹ (25) | const (26) | id (27) [ (28) "["EXP (29)
         ERRO }
 
 (26){ F.tipo = const.tipo
-      F.token = const // OBS
-      F.tamanho = 0 }
+      F.tamanho = 0
+      F.token = const // OBS: olhar isso
+    }
 
-(27){ indice = false 
+(27){ 
+      se não exite ( id ) então
+        ERRO
+
+      F.classe = id.classe
       F.tipo = id.tipo
       F.end = id.end
-      F.token = id // OBS
+      F.tamanho = id.tamanho
+      F.token = id.token // OBS
+
+      indice = false
     }
 
 (28){ indice = true }
-(29){ se EXP.tipo != inteiro então
+(29){ se EXP.tipo != inteiro && EXP.tamanho != 0 então
         ERRO }
 
 (30){
@@ -121,5 +145,13 @@ F    -> "("EXP (24) ")" | not F¹ (25) | const (26) | id (27) [ (28) "["EXP (29)
         senão se operacao == (*|/|%) && T.tipo == relacional então
             ERRO
         senão se operacao == or && T.tipo != relacional então
+            ERRO
+    }
+(31){
+        se id.tamanho == 0 então
+            ERRO
+    }
+(32){
+        se EXP.tipo != inteiro || id.tamanho == 0 então
             ERRO
     }
