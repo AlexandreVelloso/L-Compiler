@@ -106,7 +106,7 @@ public class Sintatico {
 		id.setTipo(tipo);
 		id.setTamanho(tamanho);
 		id.setClasse(classe);
-
+		
 		casaToken(Token.ID);
 		variaveis.addVariavel(id);
 
@@ -231,7 +231,6 @@ public class Sintatico {
 		RegistroLexico id = result.clone();
 		id.setTamanho(tamanho);
 		id.setClasse(classe);
-		id.setTipo(result.getTipo());
 
 		casaToken(Token.ID);
 		casaToken(Token.EQUAL);
@@ -244,15 +243,18 @@ public class Sintatico {
 			casaToken(Token.MINUS);
 			trocarSinal = true;
 		}
-
-		if (id.getTipo() == Tipo.INTEIRO) {
+		
+		if ( result.getTipo() == Tipo.INTEIRO) {
 			valor = Integer.parseInt(result.getLexema());
 			if (trocarSinal) {
 				valor *= -1;
 			}
+			
 		} else {
 			valor = result.getLexema().charAt(0);
 		}
+		
+		id.setTipo( result.getTipo() );
 
 		variaveis.addVariavel(id);
 		codigo.adicionarVariavel(id, valor);
@@ -373,6 +375,16 @@ public class Sintatico {
 			
 			if( id == null ) {
 				System.out.println("ERRO: Variavel [" + result.getLexema() + "] nao foi declarada.");
+				throw new Exception();
+			}
+			
+			if( id.getClasse() == Classe.CONSTANTE ) {
+				System.out.println( pos.getLineNumber()+":classe de identificador incompativel ["+id.getLexema()+"]." );
+				throw new Exception();
+			}
+			
+			if( id.getTipo() == Tipo.INTEIRO && id.getTamanho() != 0 ) {
+				System.out.println(pos.getLineNumber() + ":tipos incompativeis");
 				throw new Exception();
 			}
 			
@@ -703,7 +715,7 @@ public class Sintatico {
 			token == Token.LESS || token == Token.GREATHER || token == Token.LESS_EQUALS ||
 			token == Token.GREATHER_EQUAL || token == Token.EQUAL || token == Token.DIFFERENT
 		){
-			
+
 			final int OP_LESS = 0;
 			final int OP_GREATHER = 1;
 			final int OP_LESS_EQUALS = 2;
@@ -738,12 +750,13 @@ public class Sintatico {
 					operacao = OP_DIFFERENT;
 					break;
 				default:
+					System.out.println("Operacao invalida");
 					break;
 			}
 			
 			RegistroLexico exp1 = new RegistroLexico();
 			EXPS(exp1);
-			
+
 			if( exp.getTipo() != exp1.getTipo() ){
 				System.out.println( pos.getLineNumber()+":tipos incompativeis");
 				throw new Exception();
@@ -751,7 +764,7 @@ public class Sintatico {
 				System.out.println( pos.getLineNumber()+":tipos incompativeis");
 				throw new Exception();
 			}else if( exp.getTipo() == Tipo.INTEIRO ) {
-				
+
 				if( exp.getTamanho() != 0 && exp1.getTamanho() != 0 ) {
 					System.out.println( pos.getLineNumber()+":tipos incompativeis");
 					throw new Exception();
@@ -997,6 +1010,7 @@ public class Sintatico {
 			}
 			
 			exp.setTipo( Tipo.RELACIONAL );
+			exp.setTamanho( 0 );
 		}
 
 	}
@@ -1161,17 +1175,17 @@ public class Sintatico {
 
 			if( t.getTipo() != f2.getTipo() ){
 				
-				System.out.println(pos.getLineNumber() + ":tipos incompativeis.");
+				System.out.println( pos.getLineNumber() + ":tipos incompativeis.");
 				throw new Exception();
 
 			}else if( operador == AND && ( t.getTipo() != Tipo.RELACIONAL || f2.getTipo() != Tipo.RELACIONAL ) ){
 				
-				System.out.println(pos.getLineNumber() + ":tipos incompativeis.");
+				System.out.println( pos.getLineNumber() + ":tipos incompativeis.");
 				throw new Exception();
 
-			}else if( t.getTipo() == Tipo.RELACIONAL || f2.getTipo() == Tipo.RELACIONAL ){
+			}else if( operador != AND && ( t.getTipo() == Tipo.RELACIONAL || f2.getTipo() == Tipo.RELACIONAL ) ){
 
-				System.out.println(pos.getLineNumber() + ":tipos incompativeis.");
+				System.out.println( pos.getLineNumber() + ":tipos incompativeis.");
 				throw new Exception();
 
 			}
@@ -1218,14 +1232,25 @@ public class Sintatico {
 		}else if( token == Token.NOT ){
 
 			casaToken(Token.NOT);
-			EXP(f);
+			F(f);
 
-			if( f.getTipo() != Tipo.INTEIRO && f.getTamanho() != 0 ){
+			if( f.getTipo() != Tipo.RELACIONAL ){
 				System.out.println(pos.getLineNumber() + ":tipos incompativeis.");
 				throw new Exception();
 			}
 
-			codigo.mov("ax", "DS:["+f.getEndereco()+"]", "Copia valor de F.end");
+			int rotulo0 = codigo.novoRotulo();
+			int rotulo1 = codigo.novoRotulo();
+
+			codigo.mov( "ax", "DS:["+f.getEndereco()+"]", "Copia valor de F.end");
+			codigo.cmp( "ax", "0" );
+			codigo.jne( rotulo0 );
+			codigo.mov( "ax", "1" );
+			codigo.jmp( rotulo1 );
+			codigo.rotulo( rotulo0 );
+			codigo.mov( "ax", "0" );
+			codigo.rotulo( rotulo1 );
+
 			codigo.neg("ax", "nego ax");
 			int temp = codigo.novoTemp(2);
 			codigo.mov("DS:["+temp+"]", "ax", "copia o valor de ax negado para o novoTemp");

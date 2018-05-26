@@ -4,10 +4,6 @@ import java.util.HashMap;
 import lexico.RegistroLexico;
 import util.FilePosition;
 
-/**
- *
- * @author Alexandre
- */
 public class Variaveis {
     private HashMap<String, RegistroLexico> variaveis;
     private static Variaveis instance;
@@ -27,7 +23,7 @@ public class Variaveis {
     public void addVariavel( RegistroLexico var ) throws Exception{
         
         if( variaveis.containsKey(var.getLexema()) ){
-            System.out.println( FilePosition.getInstance().getLineNumber()+":identificador ja declarado [lex].");
+            System.out.println( FilePosition.getInstance().getLineNumber()+":identificador ja declarado ["+var.getLexema()+"].");
             throw new Exception();
         }else{
             variaveis.put( var.getLexema(), var);

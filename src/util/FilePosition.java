@@ -21,7 +21,7 @@ public class FilePosition{
 
 	public int getFilePos() { return filePos;}
 	public int getLineNumber() { return lineNumber; }
-	public void reset(){ filePos = 0; }
+	public void reset(){ lineNumber = 1; filePos = 0; }
    
 	public void sumLine() { lineNumber++; }
 	public void devolveChar( char c ) {
