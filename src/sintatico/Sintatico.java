@@ -1253,16 +1253,21 @@ public class Sintatico {
 				
 				int tamanho = result.getTamanho() -2 ;
 
-				// F.end = NovoTemp
-				f.setEndereco(codigo.novaVariavel( tamanho+1 ));
-
 				String valor = result.getLexema().substring(1, tamanho+1 );
 				f.setTamanho( tamanho );
 				f.setLexema( valor );
-
+				
+				// se nao for string
+				if( valor.charAt(tamanho-1) != '$' ) {
+					tamanho += 1;
+					valor += '$';
+				}
+				
+				f.setEndereco(codigo.novaVariavel( tamanho ));
 				// copia String para o seu temporario
 				codigo.stringToTemp(valor, "const string em " + f.getEndereco() + "");
 			}
+			
 			casaToken(Token.CONST);
 
 		}else if( token == Token.ID ){

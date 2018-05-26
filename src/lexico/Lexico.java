@@ -370,7 +370,7 @@ public class Lexico {
                 case 16:
                     if (c == '"') {
                         state = final_state;
-                        lex += c;
+                        lex += '$' + ""+ c;
                         token = Token.CONST;
                         tipo = Tipo.CARACTERE;
                         tamanho = lex.length();

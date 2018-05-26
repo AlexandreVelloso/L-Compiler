@@ -521,7 +521,7 @@ public class GeradorCodigo {
 		 * string em 16644 dseg ENDS ; fim seg. dados
 		 */
 		arqAsm.println("\r\ndseg SEGMENT PUBLIC");
-		arqAsm.print("\tbyte \"" + valor + "$\"");
+		arqAsm.print("\tbyte \"" + valor + "\"");
 
 		if (comentario.length > 0) {
 			arqAsm.println("\t;" + comentario[0]);
