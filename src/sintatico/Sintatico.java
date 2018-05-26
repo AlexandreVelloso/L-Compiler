@@ -609,7 +609,7 @@ public class Sintatico {
 					
 				} else if( exp.getTipo() == Tipo.CARACTERE ) {
 					
-					if( exp.getToken() == Token.CONST ) {
+					if( exp.getToken() == Token.CONST ) { // olhar
 						
 						if( id.getTamanho() == 0 ) // caractere
 						{
@@ -625,7 +625,7 @@ public class Sintatico {
 						}else // vetor de caractere
 						{
 						
-							if( (exp.getTamanho() + 1) > id.getTamanho() ) {
+							if( (exp.getTamanho() ) > id.getTamanho() ) {
 								System.out.println( pos.getLineNumber()+":tipos incompativeis");
 								throw new Exception();								
 							}
@@ -785,7 +785,7 @@ public class Sintatico {
 						codigo.je(rotulo0, "Jump se falso");
 						break;
 					default:
-						System.out.println("Operação não esperada");
+						System.out.println("Operaï¿½ï¿½o nï¿½o esperada");
 						throw new Exception();
 				}
 
@@ -799,92 +799,199 @@ public class Sintatico {
 				
 			}else if( exp.getTipo() == Tipo.CARACTERE ) {
 				
-				if( exp.getTamanho() == 0 && exp1.getTamanho() == 0 )// caractere
-				{
-				
-					codigo.mov("ax", "DS:[" + exp.getEndereco() + "]", "carrega EXP.end para regA");
-					codigo.mov("ah", "0");
-					codigo.mov("bx", "DS:[" + exp1.getEndereco() + "]", "carrega EXP.end para regB");
-					codigo.mov("ah", "0");
-					codigo.cmp("ax", "bx");
-					
-					int novoTemp = codigo.novoTemp(2);
-					int rotulo0 = codigo.novoRotulo();
-					int rotulo1 = codigo.novoRotulo();
+				if( exp.getToken() == Token.ID && exp1.getToken() == Token.ID ) {
 
-					switch( operacao ){
-						case OP_LESS:
-							codigo.jge(rotulo0, "Jump se falso");
-							break;
-						case OP_GREATHER:
-							codigo.jle(rotulo0, "Jump se falso");
-							break;
-						case OP_LESS_EQUALS:
-							codigo.jg(rotulo0, "Jump se falso");
-							break;
-						case OP_GREATHER_EQUAL:
-							codigo.jl(rotulo0, "Jump se falso");
-							break;
-						case OP_EQUAL:
-							codigo.jne(rotulo0, "Jump se falso");
-							break;
-						case OP_DIFFERENT:
-							codigo.je(rotulo0, "Jump se falso");
-							break;
-						default:
-							System.out.println("Operação não esperada");
-							throw new Exception();
-					}
-
-					codigo.mov("ax", "1", "true");
-					codigo.jmp(rotulo1, "pula para o final do if");
-					codigo.rotulo(rotulo0);
-					codigo.mov("ax", "0", "false");
-					codigo.rotulo(rotulo1);
-					codigo.mov("DS:[" + novoTemp + "]", "ax", "salva valor da exp na memoria");
-					exp.setEndereco( novoTemp );
-					
-				}else if( exp.getTamanho() != 0 && exp1.getTamanho() != 0 ) // vetor de string
-				{
-					
-					if( operacao != OP_EQUAL ) {
-						System.out.println( pos.getLineNumber()+":tipos incompativeis");
-						throw new Exception();
-					}
-					
 					if( exp.getTamanho() != exp1.getTamanho() ) {
 						System.out.println( pos.getLineNumber()+":tipos incompativeis");
 						throw new Exception();
 					}
 					
-					int novoTemp = codigo.novoTemp(2);
+					if( exp.getTamanho() == 0 && exp1.getTamanho() == 0 )// caractere
+					{
 					
-					int rotulo0 = codigo.novoRotulo();
-					int rotulo1 = codigo.novoRotulo();
-					int rotulo2 = codigo.novoRotulo();
+						codigo.mov("ax", "DS:[" + exp.getEndereco() + "]", "carrega EXP.end para regA");
+						codigo.mov("ah", "0");
+						codigo.mov("bx", "DS:[" + exp1.getEndereco() + "]", "carrega EXP.end para regB");
+						codigo.mov("bh", "0");
+						codigo.cmp("ax", "bx");
+						
+						int novoTemp = codigo.novoTemp(2);
+						int rotulo0 = codigo.novoRotulo();
+						int rotulo1 = codigo.novoRotulo();
+
+						switch( operacao ){
+							case OP_LESS:
+								codigo.jge(rotulo0, "Jump se falso");
+								break;
+							case OP_GREATHER:
+								codigo.jle(rotulo0, "Jump se falso");
+								break;
+							case OP_LESS_EQUALS:
+								codigo.jg(rotulo0, "Jump se falso");
+								break;
+							case OP_GREATHER_EQUAL:
+								codigo.jl(rotulo0, "Jump se falso");
+								break;
+							case OP_EQUAL:
+								codigo.jne(rotulo0, "Jump se falso");
+								break;
+							case OP_DIFFERENT:
+								codigo.je(rotulo0, "Jump se falso");
+								break;
+							default:
+								System.out.println("Operaï¿½ï¿½o nï¿½o esperada");
+								throw new Exception();
+						}
+
+						codigo.mov("ax", "1", "true");
+						codigo.jmp(rotulo1, "pula para o final do if");
+						codigo.rotulo(rotulo0);
+						codigo.mov("ax", "0", "false");
+						codigo.rotulo(rotulo1);
+						codigo.mov("DS:[" + novoTemp + "]", "ax", "salva valor da exp na memoria");
+						exp.setEndereco( novoTemp );
+						
+					}else // vetor de char
+					{
 					
-					codigo.mov("di",""+exp.getEndereco(), "endereco da primeira string");
-					codigo.mov("si",""+exp1.getEndereco(), "endereco da segunda string");
-					codigo.mov("ax", "1", "strings iguais");
-					codigo.rotulo( rotulo0 );
-					codigo.mov("bx", "DS:[di]", "carrega caractere para regB");
-					codigo.mov("bh","0");
-					codigo.mov("cx", "DS:[si]", "carrega caractere para regC");
-					codigo.mov("ch","0");
-					codigo.cmp("bx","cx");
-					codigo.jne(rotulo1, "se char for diferente sao diferentes");
-					codigo.cmp("bx","24h", "compara com fim de string");
-					codigo.je(rotulo2, "pula para fim do for");
-					codigo.add("di", "1");
-					codigo.add("si", "1");
-					codigo.jmp(rotulo0);
-					codigo.rotulo(rotulo1);
-					codigo.mov("ax", "0", "strings diferentes");
-					codigo.rotulo(rotulo2);
+						if( operacao != OP_EQUAL ) {
+							System.out.println( pos.getLineNumber()+":tipos incompativeis");
+							throw new Exception();
+						}
+						
+						if( exp.getTamanho() != exp1.getTamanho() ) {
+							System.out.println( pos.getLineNumber()+":tipos incompativeis");
+							throw new Exception();
+						}
+						
+						int novoTemp = codigo.novoTemp(2);
+						
+						int rotulo0 = codigo.novoRotulo();
+						int rotulo1 = codigo.novoRotulo();
+						int rotulo2 = codigo.novoRotulo();
+						
+						codigo.mov("di",""+exp.getEndereco(), "endereco da primeira string");
+						codigo.mov("si",""+exp1.getEndereco(), "endereco da segunda string");
+						codigo.mov("ax", "1", "strings iguais");
+						codigo.rotulo( rotulo0 );
+						codigo.mov("bx", "DS:[di]", "carrega caractere para regB");
+						codigo.mov("bh","0");
+						codigo.mov("cx", "DS:[si]", "carrega caractere para regC");
+						codigo.mov("ch","0");
+						codigo.cmp("bx","cx");
+						codigo.jne(rotulo1, "se char for diferente sao diferentes");
+						codigo.cmp("bx","24h", "compara com fim de string");
+						codigo.je(rotulo2, "pula para fim do for");
+						codigo.add("di", "1");
+						codigo.add("si", "1");
+						codigo.jmp(rotulo0);
+						codigo.rotulo(rotulo1);
+						codigo.mov("ax", "0", "strings diferentes");
+						codigo.rotulo(rotulo2);
+						
+						codigo.mov("DS:[" + novoTemp + "]", "ax", "salva valor da exp na memoria");
+						exp.setEndereco( novoTemp );
+						
+					}
+
+				}else // ALGUEM E' constante
+				{
+				
+					// comparar id( char ) com constante de tamanho 1
+					if( ( exp.getTamanho() == 0 && exp1.getTamanho() == 1 ) ||
+						( exp.getTamanho() == 1 && exp1.getTamanho() == 0 )) 
+					{
 					
-					codigo.mov("DS:[" + novoTemp + "]", "ax", "salva valor da exp na memoria");
-					exp.setEndereco( novoTemp );
+						codigo.mov("ax", "DS:[" + exp.getEndereco() + "]", "carrega EXP.end para regA");
+						codigo.mov("ah", "0");
+						codigo.mov("bx", "DS:[" + exp1.getEndereco() + "]", "carrega EXP.end para regB");
+						codigo.mov("bh", "0");
+						codigo.cmp("ax", "bx");
+						
+						int novoTemp = codigo.novoTemp(2);
+						int rotulo0 = codigo.novoRotulo();
+						int rotulo1 = codigo.novoRotulo();
+
+						switch( operacao ){
+							case OP_LESS:
+								codigo.jge(rotulo0, "Jump se falso");
+								break;
+							case OP_GREATHER:
+								codigo.jle(rotulo0, "Jump se falso");
+								break;
+							case OP_LESS_EQUALS:
+								codigo.jg(rotulo0, "Jump se falso");
+								break;
+							case OP_GREATHER_EQUAL:
+								codigo.jl(rotulo0, "Jump se falso");
+								break;
+							case OP_EQUAL:
+								codigo.jne(rotulo0, "Jump se falso");
+								break;
+							case OP_DIFFERENT:
+								codigo.je(rotulo0, "Jump se falso");
+								break;
+							default:
+								System.out.println("Operacao nao esperada");
+								throw new Exception();
+						}
+
+						codigo.mov("ax", "1", "true");
+						codigo.jmp(rotulo1, "pula para o final do if");
+						codigo.rotulo(rotulo0);
+						codigo.mov("ax", "0", "false");
+						codigo.rotulo(rotulo1);
+						codigo.mov("DS:[" + novoTemp + "]", "ax", "salva valor da exp na memoria");
+						exp.setEndereco( novoTemp );
+						
+					}else if( exp.getTamanho() != exp1.getTamanho() ) {
 					
+						System.out.println( pos.getLineNumber()+":tipos incompativeis");
+						throw new Exception();
+					
+					}else // strings ou constantes maiores que 1
+					{
+						
+						if( operacao != OP_EQUAL ) {
+							System.out.println( pos.getLineNumber()+":tipos incompativeis");
+							throw new Exception();
+						}
+						
+						if( exp.getTamanho() != exp1.getTamanho() ) {
+							System.out.println( pos.getLineNumber()+":tipos incompativeis");
+							throw new Exception();
+						}
+						
+						int novoTemp = codigo.novoTemp(2);
+						
+						int rotulo0 = codigo.novoRotulo();
+						int rotulo1 = codigo.novoRotulo();
+						int rotulo2 = codigo.novoRotulo();
+						
+						codigo.mov("di",""+exp.getEndereco(), "endereco da primeira string");
+						codigo.mov("si",""+exp1.getEndereco(), "endereco da segunda string");
+						codigo.mov("ax", "1", "strings iguais");
+						codigo.rotulo( rotulo0 );
+						codigo.mov("bx", "DS:[di]", "carrega caractere para regB");
+						codigo.mov("bh","0");
+						codigo.mov("cx", "DS:[si]", "carrega caractere para regC");
+						codigo.mov("ch","0");
+						codigo.cmp("bx","cx");
+						codigo.jne(rotulo1, "se char for diferente sao diferentes");
+						codigo.cmp("bx","24h", "compara com fim de string");
+						codigo.je(rotulo2, "pula para fim do for");
+						codigo.add("di", "1");
+						codigo.add("si", "1");
+						codigo.jmp(rotulo0);
+						codigo.rotulo(rotulo1);
+						codigo.mov("ax", "0", "strings diferentes");
+						codigo.rotulo(rotulo2);
+						
+						codigo.mov("DS:[" + novoTemp + "]", "ax", "salva valor da exp na memoria");
+						exp.setEndereco( novoTemp );
+
+					}
+
 				}
 				
 			}
@@ -1127,7 +1234,6 @@ public class Sintatico {
 		}else if( token == Token.CONST ){
 
 			f.setTipo(result.getTipo());
-			f.setTamanho(0);
 			f.setToken(Token.CONST);
 
 			if (f.getTipo() == Tipo.INTEIRO) {
@@ -1136,6 +1242,7 @@ public class Sintatico {
 
 				// F.end = NovoTemp
 				f.setEndereco(codigo.novoTemp(2));
+				f.setTamanho(0);
 				valor = Integer.parseInt(result.getLexema());
 
 				// mov regA, imed
@@ -1143,18 +1250,24 @@ public class Sintatico {
 				// mov F.end, regA
 				codigo.mov("DS:[" + f.getEndereco() + "]", "ax", "copia constante para temporario");
 			} else {
+				
+				int tamanho = result.getTamanho() -2 ;
 
-				f.setTamanho(result.getLexema().length() - 2);
-
-				// F.end = NovoTemp
-				f.setEndereco(codigo.novaVariavel(f.getTamanho() + 1));
-
-				String valor = result.getLexema().substring(1, f.getTamanho() + 1);
+				String valor = result.getLexema().substring(1, tamanho+1 );
+				f.setTamanho( tamanho );
 				f.setLexema( valor );
-
+				
+				// se nao for string
+				if( valor.charAt(tamanho-1) != '$' ) {
+					tamanho += 1;
+					valor += '$';
+				}
+				
+				f.setEndereco(codigo.novaVariavel( tamanho ));
 				// copia String para o seu temporario
 				codigo.stringToTemp(valor, "const string em " + f.getEndereco() + "");
 			}
+			
 			casaToken(Token.CONST);
 
 		}else if( token == Token.ID ){

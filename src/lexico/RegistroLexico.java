@@ -44,6 +44,16 @@ public class RegistroLexico {
         this.endereco = -1;
     }
     
+    public RegistroLexico(Token token, String lexema, int line, int tamanho, Tipo tipo) {
+        this.token = token;
+        this.lexema = lexema;
+        this.line = line;
+        this.tamanho = tamanho;
+        this.classe = null;
+        this.tipo = tipo;
+        this.endereco = -1;
+    }
+    
     private RegistroLexico(Token token, String lexema, int line, int tamanho, Classe classe, Tipo tipo, int endereco) {
         this.token = token;
         this.lexema = lexema;
