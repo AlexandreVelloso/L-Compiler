@@ -65,14 +65,27 @@ F    -> "("EXP (24) ")" | not F¹ (25) | const (26) | id (27) [ (28) "["EXP (29)
      senão se EXP.tipo == relacional então
         ERRO? }
 
-(14){ se id.tipo != EXP.tipo então
-        ERRO
-     senão se EXP.tipo == relacional então
-        ERRO
-     senão se id.classe == constante então
-        ERRO
-     senão
-        id.end = EXP.end
+(14){ se id.tipo == EXP.tipo
+        se id.classe == constante então
+            ERRO
+
+        se id.tipo == relacional então 
+            ERRO
+        senão se EXP.tipo == inteiro então
+            se exp.tamanho != 0 && id.tamanho != 0 então
+                ERRO
+        senão se EXP.tipo == caractere
+            se exp.token == const
+                se id.tamanho == 0 então
+                    se exp.tamanho != 1
+                        ERRO
+                senão
+                    se exp.tamanho+1 > id.tamanho
+                        ERRO
+            senão se EXP.token == ID
+                se id.tamanho < exp.tamanho então
+                    ERRO
+
    }
 
 (15){ exp.tipo = relacional }
@@ -80,12 +93,23 @@ F    -> "("EXP (24) ")" | not F¹ (25) | const (26) | id (27) [ (28) "["EXP (29)
      EXP.tipo = EXPS.tipo }
 
 (17){ 
-    se EXP.tipo == relacional || EXPS¹.tipo == relacional então
+
+    se EXP.tipo != EXPS¹.tipo então
+        ERRO
+    se EXP.tipo == relacional então
+        ERRO
+    senão se EXP.tipo == inteiro && ( EXP.tamanho != 0 || EXPS¹.tamanho != 0 ) então
+        ERRO
+
+    se EXP.tipo != relacional || EXPS¹.tipo != relacional então
         ERRO
     se EXP.tipo != EXPS¹.tipo então
         ERRO
-    senão
-        Olhar como tratar os vetores
+    senão se EXP.tipo == caractere então
+        se EXP.tamanho != 0 && EXPS¹.tamanho != 0 então
+            se EXP.tamaho != EXPS¹.tamanho então
+                ERRO
+        
     }
 
 (18){ negar = true }

@@ -116,4 +116,8 @@ public class RegistroLexico {
     public void setToken( Token token ) {
     	this.token = token;
     }
+    
+    public void setLexema( String lexema ) {
+    	this.lexema = lexema;
+    }
 }
