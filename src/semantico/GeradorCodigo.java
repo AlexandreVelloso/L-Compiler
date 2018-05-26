@@ -321,6 +321,23 @@ public class GeradorCodigo {
 		arqAsm.println(";fim ler do teclado\r\n");
 	}
 
+	public void copiarString( int destino, int origem ) {
+		
+		int rotulo0 = novoRotulo();
+		
+		mov( "di", ""+origem, "primeira posicao da string de origem");
+		mov( "si", ""+destino, "primeira posicao da string de destino" );
+		rotulo( rotulo0 );
+		mov( "bx", "DS:[di]" );
+		mov( "bh", "0" );
+		mov( "DS:[si]", "bl" );
+		add( "di", ""+1, "proxima posicao");
+		add( "si", ""+1, "proxima posicao");
+		cmp( "bx", "24h" );
+		jne( rotulo0, "loop" );
+		
+	}
+	
 	public void mov(String reg1, String reg2, String... comentario) {
 
 		arqAsm.print("\tmov " + reg1 + ", " + reg2);

@@ -65,14 +65,27 @@ F    -> "("EXP (24) ")" | not F¹ (25) | const (26) | id (27) [ (28) "["EXP (29)
      senão se EXP.tipo == relacional então
         ERRO? }
 
-(14){ se id.tipo != EXP.tipo então
-        ERRO
-     senão se EXP.tipo == relacional então
-        ERRO
-     senão se id.classe == constante então
-        ERRO
-     senão
-        id.end = EXP.end
+(14){ se id.tipo == EXP.tipo
+        se id.classe == constante então
+            ERRO
+
+        se id.tipo == relacional então 
+            ERRO
+        senão se EXP.tipo == inteiro então
+            se exp.tamanho != 0 && id.tamanho != 0 então
+                ERRO
+        senão se EXP.tipo == caractere
+            se exp.token == const
+                se id.tamanho == 0 então
+                    se exp.tamanho != 1
+                        ERRO
+                senão
+                    se exp.tamanho+1 > id.tamanho
+                        ERRO
+            senão se EXP.token == ID
+                se id.tamanho < exp.tamanho
+                    ERRO
+
    }
 
 (15){ exp.tipo = relacional }
