@@ -64,6 +64,7 @@ public class Lexico {
         String lex = "";
         Token token = null;
         Tipo tipo = null;
+        int tamanho = 0;
         do {
 
             if (eof(programa, pos)) {
@@ -359,6 +360,7 @@ public class Lexico {
                         lex += c;
                         token = Token.CONST;
                         tipo = Tipo.CARACTERE;
+                        tamanho = lex.length();
                     } else {
                         System.out.println(pos.getLineNumber() + ":lexema nao identificado[" + (lex + c) + "]");
                         throw new Exception();
@@ -371,6 +373,7 @@ public class Lexico {
                         lex += c;
                         token = Token.CONST;
                         tipo = Tipo.CARACTERE;
+                        tamanho = lex.length();
                     } else if (c != '\n') {
                         lex += c;
                     } else {
@@ -403,6 +406,6 @@ public class Lexico {
 
         }
 
-        return (new RegistroLexico(token, lex, pos.getLineNumber(), tipo));
+        return new RegistroLexico( token, lex, pos.getLineNumber(), tamanho, tipo );
     }
 }
