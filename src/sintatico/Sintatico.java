@@ -800,11 +800,6 @@ public class Sintatico {
 			}else if( exp.getTipo() == Tipo.CARACTERE ) {
 				
 				if( exp.getToken() == Token.ID && exp1.getToken() == Token.ID ) {
-
-					if( exp.getTamanho() != exp1.getTamanho() ) {
-						System.out.println( pos.getLineNumber()+":tipos incompativeis");
-						throw new Exception();
-					}
 					
 					if( exp.getTamanho() == 0 && exp1.getTamanho() == 0 )// caractere
 					{
@@ -859,11 +854,6 @@ public class Sintatico {
 							throw new Exception();
 						}
 						
-						if( exp.getTamanho() != exp1.getTamanho() ) {
-							System.out.println( pos.getLineNumber()+":tipos incompativeis");
-							throw new Exception();
-						}
-						
 						int novoTemp = codigo.novoTemp(2);
 						
 						int rotulo0 = codigo.novoRotulo();
@@ -882,6 +872,8 @@ public class Sintatico {
 						codigo.jne(rotulo1, "se char for diferente sao diferentes");
 						codigo.cmp("bx","24h", "compara com fim de string");
 						codigo.je(rotulo2, "pula para fim do for");
+						codigo.cmp("cx", "24h", "compara com fim de string");
+						codigo.je(rotulo2,"pula para fim do for");
 						codigo.add("di", "1");
 						codigo.add("si", "1");
 						codigo.jmp(rotulo0);
@@ -944,20 +936,10 @@ public class Sintatico {
 						codigo.mov("DS:[" + novoTemp + "]", "ax", "salva valor da exp na memoria");
 						exp.setEndereco( novoTemp );
 						
-					}else if( exp.getTamanho() != exp1.getTamanho() ) {
-					
-						System.out.println( pos.getLineNumber()+":tipos incompativeis");
-						throw new Exception();
-					
 					}else // strings ou constantes maiores que 1
 					{
 						
 						if( operacao != OP_EQUAL ) {
-							System.out.println( pos.getLineNumber()+":tipos incompativeis");
-							throw new Exception();
-						}
-						
-						if( exp.getTamanho() != exp1.getTamanho() ) {
 							System.out.println( pos.getLineNumber()+":tipos incompativeis");
 							throw new Exception();
 						}
@@ -979,6 +961,8 @@ public class Sintatico {
 						codigo.cmp("bx","cx");
 						codigo.jne(rotulo1, "se char for diferente sao diferentes");
 						codigo.cmp("bx","24h", "compara com fim de string");
+						codigo.je(rotulo2, "pula para fim do for");
+						codigo.cmp("cx","24h", "compara com fim de string");
 						codigo.je(rotulo2, "pula para fim do for");
 						codigo.add("di", "1");
 						codigo.add("si", "1");
