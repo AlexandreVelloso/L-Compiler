@@ -8,7 +8,7 @@ public class LC {
     public static void main(String[] args) {
 
         try {
-            String arquivoL = "Exemplo1.l";
+            String arquivoL = "t17.l";
             String arquivoASM = "";
 
             /*
@@ -20,7 +20,7 @@ public class LC {
             }
             */
             
-            Programa.getInstance().readProgram("./Arquivos/Exemplos/" + arquivoL);
+            Programa.getInstance().readProgram("./Arquivos/semantico/Certos/" + arquivoL);
             Sintatico.principal();
         } catch (Exception e) {
             e.printStackTrace();
