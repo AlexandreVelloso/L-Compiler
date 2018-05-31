@@ -20,7 +20,7 @@ public class LC {
             }
             */
             
-            Programa.getInstance().readProgram("./Arquivos/semantico/Certos/" + arquivoL);
+            Programa.getInstance().readProgram("./Arquivos/semantico/" + arquivoL);
             Sintatico.principal();
         } catch (Exception e) {
             e.printStackTrace();

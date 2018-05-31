@@ -5,7 +5,7 @@ A linguagem “L” é uma linguagem imperativa simplificada, com característic
 | A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z |<br>
 | a | b | c | d | e | f | g | h | i | j | k | l | m | n | o | p | q | r | s | t | u | v | w | x | y | z |<br>
 | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | ' ' | _ | . | , | ; | & | : | ( | \) | [ | \] | \{ | \} | + | - | " | ' |<br>
-| / | % | ^ | @ | ! | ? | > | < | = | \n |<br>
+| / | % | ^ | @ | ! | ? | > | < | = | \n | \t <br>
 
 ## Tokens
 | Tokem | Lexema |
@@ -55,13 +55,13 @@ A linguagem “L” é uma linguagem imperativa simplificada, com característic
 O primeiro símbolo da gramática é o S
 
 ```
-S -> {VARIAVEL|CONSTANTE} COMANDO
+S -> {VARIAVEL|CONSTANTE} { COMANDO }
 
 VARIAVEL -> (int|char) id[ "["const"]" | ATRIBUICAO ] { ,id[ "["const"]" | ATRIBUICAO] };
-ATRIBUICAO -> <- const
+ATRIBUICAO -> <- [+|-] const
 CONSTANTE -> final id = [+|-] const;
 
-COMANDO -> {
+COMANDO ->
            for id <- EXP to EXP [step const] do BLOCO |
            if EXP then BLOCO [else BLOCO] |
            readln "(" id[ "[" EXP "]" ] ")"; |
@@ -69,9 +69,8 @@ COMANDO -> {
            writeln "(" EXP{ ,EXP} ")"; |
            id <- EXP; |
            ;
-           }
 
-BLOCO -> begin COMANDO end; | COMANDO
+BLOCO -> begin { COMANDO } end; | COMANDO
 
 EXP  -> EXPS[ (<|>|<=|>=|=|<>)EXPS ]
 EXPS -> [+|-] T{ (+|-|or)T }
