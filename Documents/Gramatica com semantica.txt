@@ -12,7 +12,7 @@ COMANDO ->
            ;
 BLOCO -> begin {COMANDO} end; | COMANDO
 
-EXP  -> EXPS (16) [ (<|>|<=|>=|=|<> (15) )EXPS¹ (17) ]
+EXP  -> EXPS (16) [ (<|>|<=|>=|=|<> )EXPS¹ (17) ] (15)
 EXPS -> [+|- (18) ] T (19) { (+|-|or (20) ) T¹ (21) }
 T    -> F (22) { (*|/|%|and (23) ) F¹ (30) }
 F    -> "("EXP (24) ")" | not F¹ (25) | const (26) | id (27) [ (28) "[" (31) EXP (29) "]" ]
@@ -87,8 +87,10 @@ F    -> "("EXP (24) ")" | not F¹ (25) | const (26) | id (27) [ (28) "[" (31) EX
                     ERRO
 
    }
-
-(15){ exp.tipo = relacional }
+(15){ 
+        se isRelacional então
+            EXP.tipo = realacional
+    }
 (16){ EXP.end = EXPS.end
      EXP.tipo = EXPS.tipo }
 
@@ -100,16 +102,17 @@ F    -> "("EXP (24) ")" | not F¹ (25) | const (26) | id (27) [ (28) "[" (31) EX
         ERRO
     senão se EXP.tipo == inteiro && ( EXP.tamanho != 0 || EXPS¹.tamanho != 0 ) então
         ERRO
-
+    senão se EXP.tipo == caractere
+        se EXP.tamanho != 0 || EXPS¹.tamanho != 0 && operacao != "="
+            ERRO
     se EXP.tipo != relacional || EXPS¹.tipo != relacional então
         ERRO
     se EXP.tipo != EXPS¹.tipo então
         ERRO
-    senão se EXP.tipo == caractere então
-        se EXP.tamanho != 0 && EXPS¹.tamanho != 0 então
-            se EXP.tamaho != EXPS¹.tamanho então
-                ERRO
-        
+    senão se EXP.tipo == caractere && EXP.tamanho != 0 && EXPS¹.tamanho != 0 && operacao != "="
+        ERRO
+    
+    isRelacional = true
     }
 
 (18){ negar = true }

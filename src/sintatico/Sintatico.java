@@ -765,7 +765,7 @@ public class Sintatico {
 				throw new Exception();
 			}else if( exp.getTipo() == Tipo.INTEIRO ) {
 
-				if( exp.getTamanho() != 0 && exp1.getTamanho() != 0 ) {
+				if( exp.getTamanho() != 0 || exp1.getTamanho() != 0 ) {
 					System.out.println( pos.getLineNumber()+":tipos incompativeis");
 					throw new Exception();
 				}
