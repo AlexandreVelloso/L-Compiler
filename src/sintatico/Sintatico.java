@@ -383,11 +383,6 @@ public class Sintatico {
 				throw new Exception();
 			}
 			
-			if( id.getTipo() == Tipo.INTEIRO && id.getTamanho() != 0 ) {
-				System.out.println(pos.getLineNumber() + ":tipos incompativeis");
-				throw new Exception();
-			}
-			
 			casaToken( Token.ID );
 			
 			if( token == Token.OPEN_BRACKET ) {
@@ -436,6 +431,12 @@ public class Sintatico {
 			{
 				
 				if( id.getTipo() == Tipo.INTEIRO ) {
+					
+					if( id.getTamanho() != 0 ) {
+						System.out.println(pos.getLineNumber() + ":tipos incompativeis");
+						throw new Exception();
+					}
+					
 					codigo.readInt( id.getEndereco() );
 				}else{
 			

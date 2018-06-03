@@ -29,15 +29,15 @@ public class GeradorCodigo {
 
 	public void inicioASM() {
 
-		arqAsm.println("sseg SEGMENT STACK\t; inicio seg. pilha\r\n" + "	byte 400h DUP(?)\r\n"
-				+ "sseg ENDS\t; fim seg. pilha\r\n" + "\r\n" + "dseg SEGMENT PUBLIC\t; inicio seg. dados\r\n"
-				+ "	byte 4000h DUP(?)\t; temporarios");
+		arqAsm.println("sseg SEGMENT STACK\t ; inicio seg. pilha\r\n" + "	byte 400h DUP(?)\r\n"
+				+ "sseg ENDS\t ; fim seg. pilha\r\n" + "\r\n" + "dseg SEGMENT PUBLIC\t ; inicio seg. dados\r\n"
+				+ "	byte 4000h DUP(?)\t ; temporarios");
 	}
 
 	public void fimVariaveisASM() {
 
-		arqAsm.println("dseg ENDS\t; fim seg. dados\r\n" + "\r\n" + "cseg SEGMENT PUBLIC\t; inicio do seg. codigo\r\n"
-				+ "	ASSUME CS:cseg, DS:dseg\r\n\r\n" + "_strt:\t; inicio do programa\n" + "\tmov ax, dseg\r\n"
+		arqAsm.println("dseg ENDS\t ; fim seg. dados\r\n" + "\r\n" + "cseg SEGMENT PUBLIC\t ; inicio do seg. codigo\r\n"
+				+ "	ASSUME CS:cseg, DS:dseg\r\n\r\n" + "_strt:\t ; inicio do programa\n" + "\tmov ax, dseg\r\n"
 				+ "\tmov ds, ax\r\n");
 	}
 
@@ -84,54 +84,54 @@ public class GeradorCodigo {
 		int temp = novoTemp( 3 );// tamanho de 1 inteiro mais o caractere $
 
 		arqAsm.println("\r\n;Mostrar na tela\r\n");
-		arqAsm.println("\tmov di, "+temp+"\t;end. string temporaria");
-		arqAsm.println("\tmov cx,0\t;contador");
+		arqAsm.println("\tmov di, "+temp+"\t ;end. string temporaria");
+		arqAsm.println("\tmov cx, 0\t ;contador");
 		// move numero para regA
-		arqAsm.println("\tmov ax, DS:[" + adress + "]\t;move inteiro para regA");
+		arqAsm.println("\tmov ax, DS:[" + adress + "]\t ;move inteiro para regA");
 		// compara com 0 para se obter o sinal do numero
-		arqAsm.println("\tcmp ax,0\t;compara para saber o sinal do numero");
+		arqAsm.println("\tcmp ax,0\t ;compara para saber o sinal do numero");
 		// se numero positivo, pula
-		arqAsm.println("\tjge R" + rotulo0 + "\t;pula se positivo");
+		arqAsm.println("\tjge R" + rotulo0 + "\t ;pula se positivo");
 		// se nao pular
-		arqAsm.println("\tmov bl, 2Dh\t;senao escreve sinal -");
+		arqAsm.println("\tmov bl, 2Dh\t ;senao escreve sinal -");
 		arqAsm.println("\tmov ds:[di], bl");
 		// incrementa o indice
-		arqAsm.println("\tadd di, 1\t;incrementa o indice");
+		arqAsm.println("\tadd di, 1\t ;incrementa o indice");
 		// faz o modulo do numero
-		arqAsm.println("\tneg ax\t;modulo do numero");
+		arqAsm.println("\tneg ax\t ;modulo do numero");
 		// rotulo
 		arqAsm.println("\tR" + rotulo0 + ":");
 		contadorRotulo++;
-		arqAsm.println("\tmov bx,10\t;divisor");
+		arqAsm.println("\tmov bx, 10\t ;divisor");
 		// rotulo
 		arqAsm.println("\tR" + rotulo1 + ":");
 		// incrementa o contador
-		arqAsm.println("\tadd cx,1\t;incrementa o contador");
+		arqAsm.println("\tadd cx,1\t ;incrementa o contador");
 		// zera o DX, estende 32bits p/ div.
 		// OBS: na divisao, AX recebe o quociente e DX recebe o resto da divisao
-		arqAsm.println("\tmov dx,0\t;estende 32bits p/ div.");
+		arqAsm.println("\tmov dx,0\t ;estende 32bits p/ div.");
 		// divide DXAX por BX
-		arqAsm.println("\tidiv bx\t;divide DXAX por BX");
+		arqAsm.println("\tidiv bx\t ;divide DXAX por BX");
 		// empilha o valor do resto
-		arqAsm.println("\tpush dx\t;empilha valor do resto");
+		arqAsm.println("\tpush dx\t ;empilha valor do resto");
 		// verifica se ax igual 0
-		arqAsm.println("\tcmp ax, 0\t;verifica se quoc. = 0");
+		arqAsm.println("\tcmp ax, 0\t ;verifica se quoc. = 0");
 		// se nao igual pula
-		arqAsm.println("\tjne R" + rotulo1 + "\t;se nao acabou o numero, loop");
+		arqAsm.println("\tjne R" + rotulo1 + "\t ;se nao acabou o numero, loop");
 		contadorRotulo++;
-		arqAsm.println("\t;depois de acabar o numero, desemp. os valores");
+		arqAsm.println("\t ;depois de acabar o numero, desemp. os valores");
 		arqAsm.println("\tR" + rotulo2 + ":");
-		arqAsm.println("\tpop dx\t;desempilha valor");
-		arqAsm.println("\tadd dx, 30h\t;transforma em caractere");
-		arqAsm.println("\tmov DS:[di],dl\t;escreve caractere");
-		arqAsm.println("\tadd di,1\t;incrementa base");
-		arqAsm.println("\tadd cx, -1\t;decrementa contador");
-		arqAsm.println("\tcmp cx,0\t;verifica se a pilha esta vazia");
-		arqAsm.println("\tjne R" + rotulo2 + "\t;se nao pilha vazia, loop");
-		arqAsm.println("\t;grava fim de string");
-		arqAsm.println("\tmov dl, 024h\t;fim de string");
-		arqAsm.println("\tmov ds:[di], dl\t;grava '$'");
-		arqAsm.println("\t;exibe string");
+		arqAsm.println("\tpop dx\t ;desempilha valor");
+		arqAsm.println("\tadd dx, 30h\t ;transforma em caractere");
+		arqAsm.println("\tmov DS:[di],dl\t ;escreve caractere");
+		arqAsm.println("\tadd di,1\t ;incrementa base");
+		arqAsm.println("\tadd cx, -1\t ;decrementa contador");
+		arqAsm.println("\tcmp cx,0\t ;verifica se a pilha esta vazia");
+		arqAsm.println("\tjne R" + rotulo2 + "\t ;se nao pilha vazia, loop");
+		arqAsm.println("\t ;grava fim de string");
+		arqAsm.println("\tmov dl, 024h\t ;fim de string");
+		arqAsm.println("\tmov ds:[di], dl\t ;grava '$'");
+		arqAsm.println("\t ;exibe string");
 		arqAsm.println("\tmov dx, "+temp);
 		arqAsm.println("\tmov ah, 09h");
 		arqAsm.println("\tint 21h");
@@ -140,7 +140,7 @@ public class GeradorCodigo {
 	}
 
 	public void mostrarString(int adress) {
-		arqAsm.println("\tmov dx, " + adress + "\t; imprime string na tela");
+		arqAsm.println("\tmov dx, " + adress + "\t ; imprime string na tela");
 		arqAsm.println("\tmov ah, 09h");
 		arqAsm.println("\tint 21h\r\n");
 	}
@@ -169,8 +169,8 @@ public class GeradorCodigo {
 		int rotulo2 = novoRotulo();
 		
 		arqAsm.println(";ler int do teclado");
-		arqAsm.println("\tmov dx, "+endTemp+"\t;endereco do temporario");
-		arqAsm.println("\tmov al, "+(255)+"\t;tamanho do vetor + 1");
+		arqAsm.println("\tmov dx, "+endTemp+"\t ;endereco do temporario");
+		arqAsm.println("\tmov al, "+(255)+"\t ;tamanho do vetor + 1");
 		arqAsm.println("\tmov DS:["+endTemp+"], al");
 		arqAsm.println("\tmov ah, 0Ah");
 		arqAsm.println("\tint 21h\r\n");
@@ -179,33 +179,33 @@ public class GeradorCodigo {
 		
 		arqAsm.println(";transformar string lida em int");
 		
-		arqAsm.println("\tmov di, "+(endTemp+2)+"\t;posicao do string");
-		arqAsm.println("\tmov ax, 0\t;acumulador");
-		arqAsm.println("\tmov cx, 10\t;base decimal");
-		arqAsm.println("\tmov dx, 1\t;valor sinal +");
+		arqAsm.println("\tmov di, "+(endTemp+2)+"\t ;posicao do string");
+		arqAsm.println("\tmov ax, 0\t ;acumulador");
+		arqAsm.println("\tmov cx, 10\t ;base decimal");
+		arqAsm.println("\tmov dx, 1\t ;valor sinal +");
 		arqAsm.println("\tmov bh, 0");
-		arqAsm.println("\tmov bl, DS:[di]\t;caractere");
-		arqAsm.println("\tcmp bx, 2Dh\t;verifica sinal");
-		arqAsm.println("\tjne R"+rotulo0+"\t;se nao negativo");
-		arqAsm.println("\tmov dx, -1\t;valor sinal -");
-		arqAsm.println("\tadd di, 1\t;incrementa base");
-		arqAsm.println("\tmov bl, DS:[di]\t;proximo caractere");
+		arqAsm.println("\tmov bl, DS:[di]\t ;caractere");
+		arqAsm.println("\tcmp bx, 2Dh\t ;verifica sinal");
+		arqAsm.println("\tjne R"+rotulo0+"\t ;se nao negativo");
+		arqAsm.println("\tmov dx, -1\t ;valor sinal -");
+		arqAsm.println("\tadd di, 1\t ;incrementa base");
+		arqAsm.println("\tmov bl, DS:[di]\t ;proximo caractere");
 		arqAsm.println("R"+rotulo0+":");
-		arqAsm.println("\tpush dx\t;empilha sinal");
-		arqAsm.println("\tmov dx, 0\t;reg. multiplicacao");
+		arqAsm.println("\tpush dx\t ;empilha sinal");
+		arqAsm.println("\tmov dx, 0\t ;reg. multiplicacao");
 		arqAsm.println("R"+rotulo1+":");
-		arqAsm.println("\tcmp bx, 0Dh\t;verifica fim string");
+		arqAsm.println("\tcmp bx, 0Dh\t ;verifica fim string");
 		arqAsm.println("\tje R"+rotulo2);
-		arqAsm.println("\timul cx\t;mult. 10");
-		arqAsm.println("\tadd bx, -48\t;converte caractere");
-		arqAsm.println("\tadd ax, bx\t;soma valor caractere");
-		arqAsm.println("\tadd di, 1\t;incrementa base");
+		arqAsm.println("\timul cx\t ;mult. 10");
+		arqAsm.println("\tadd bx, -48\t ;converte caractere");
+		arqAsm.println("\tadd ax, bx\t ;soma valor caractere");
+		arqAsm.println("\tadd di, 1\t ;incrementa base");
 		arqAsm.println("\tmov bh, 0");
-		arqAsm.println("\tmov bl, ds:[di]\t;proximo caractere");
-		arqAsm.println("\tjmp R"+rotulo1+"\t;loop");
+		arqAsm.println("\tmov bl, ds:[di]\t ;proximo caractere");
+		arqAsm.println("\tjmp R"+rotulo1+"\t ;loop");
 		arqAsm.println("R"+rotulo2+":");
-		arqAsm.println("\tpop cx\t;desempilha sinal");
-		arqAsm.println("\timul cx\t;mult. sinal");
+		arqAsm.println("\tpop cx\t ;desempilha sinal");
+		arqAsm.println("\timul cx\t ;mult. sinal");
 		arqAsm.println("\tmov DS:["+endereco+"], ax	;copia valor de volta para variavel");
 		
 		arqAsm.println(";fim ler do teclado\r\n");
@@ -218,8 +218,8 @@ public class GeradorCodigo {
 		int rotulo2 = novoRotulo();
 		
 		arqAsm.println(";ler int do teclado");
-		arqAsm.println("\tmov dx, "+endTemp+"\t;endereco do temporario");
-		arqAsm.println("\tmov al, 255\t;tamanho do vetor");
+		arqAsm.println("\tmov dx, "+endTemp+"\t ;endereco do temporario");
+		arqAsm.println("\tmov al, 255\t ;tamanho do vetor");
 		arqAsm.println("\tmov DS:["+endTemp+"], al");
 		arqAsm.println("\tmov ah, 0Ah");
 		arqAsm.println("\tint 21h\r\n");
@@ -228,35 +228,35 @@ public class GeradorCodigo {
 		
 		arqAsm.println(";transformar string lida em int");
 		
-		arqAsm.println("\tmov di, "+(endTemp+2)+"\t;posicao do string");
-		arqAsm.println("\tmov ax, 0\t;acumulador");
-		arqAsm.println("\tmov cx, 10\t;base decimal");
-		arqAsm.println("\tmov dx, 1\t;valor sinal +");
+		arqAsm.println("\tmov di, "+(endTemp+2)+"\t ;posicao do string");
+		arqAsm.println("\tmov ax, 0\t ;acumulador");
+		arqAsm.println("\tmov cx, 10\t ;base decimal");
+		arqAsm.println("\tmov dx, 1\t ;valor sinal +");
 		arqAsm.println("\tmov bh, 0");
-		arqAsm.println("\tmov bl, DS:[di]\t;caractere");
-		arqAsm.println("\tcmp bx, 2Dh\t;verifica sinal");
-		arqAsm.println("\tjne R"+rotulo0+"\t;se nao negativo");
-		arqAsm.println("\tmov dx, -1\t;valor sinal -");
-		arqAsm.println("\tadd di, 1\t;incrementa base");
-		arqAsm.println("\tmov bl, DS:[di]\t;proximo caractere");
+		arqAsm.println("\tmov bl, DS:[di]\t ;caractere");
+		arqAsm.println("\tcmp bx, 2Dh\t ;verifica sinal");
+		arqAsm.println("\tjne R"+rotulo0+"\t ;se nao negativo");
+		arqAsm.println("\tmov dx, -1\t ;valor sinal -");
+		arqAsm.println("\tadd di, 1\t ;incrementa base");
+		arqAsm.println("\tmov bl, DS:[di]\t ;proximo caractere");
 		arqAsm.println("R"+rotulo0+":");
-		arqAsm.println("\tpush dx\t;empilha sinal");
-		arqAsm.println("\tmov dx, 0\t;reg. multiplicacao");
+		arqAsm.println("\tpush dx\t ;empilha sinal");
+		arqAsm.println("\tmov dx, 0\t ;reg. multiplicacao");
 		arqAsm.println("R"+rotulo1+":");
-		arqAsm.println("\tcmp bx, 0Dh\t;verifica fim string");
+		arqAsm.println("\tcmp bx, 0Dh\t ;verifica fim string");
 		arqAsm.println("\tje R"+rotulo2);
-		arqAsm.println("\timul cx\t;mult. 10");
-		arqAsm.println("\tadd bx, -48\t;converte caractere");
-		arqAsm.println("\tadd ax, bx\t;soma valor caractere");
-		arqAsm.println("\tadd di, 1\t;incrementa base");
+		arqAsm.println("\timul cx\t ;mult. 10");
+		arqAsm.println("\tadd bx, -48\t ;converte caractere");
+		arqAsm.println("\tadd ax, bx\t ;soma valor caractere");
+		arqAsm.println("\tadd di, 1\t ;incrementa base");
 		arqAsm.println("\tmov bh, 0");
-		arqAsm.println("\tmov bl, ds:[di]\t;proximo caractere");
-		arqAsm.println("\tjmp R"+rotulo1+"\t;loop");
+		arqAsm.println("\tmov bl, ds:[di]\t ;proximo caractere");
+		arqAsm.println("\tjmp R"+rotulo1+"\t ;loop");
 		arqAsm.println("R"+rotulo2+":");
-		arqAsm.println("\tpop cx\t;desempilha sinal");
-		arqAsm.println("\timul cx\t;mult. sinal");
+		arqAsm.println("\tpop cx\t ;desempilha sinal");
+		arqAsm.println("\timul cx\t ;mult. sinal");
 		mov("bx", "DS:["+deslocamento+"]");
-		arqAsm.println("\tmov DS:[bx], ax\t;copia valor de volta para variavel");
+		arqAsm.println("\tmov DS:[bx], ax\t ;copia valor de volta para variavel");
 		
 		arqAsm.println(";fim ler do teclado\r\n");
 	}
@@ -271,8 +271,8 @@ public class GeradorCodigo {
 		
 		arqAsm.println(";ler char do teclado");
 		mov( "bx", "DS:["+endereco+"]", "endereco do char com deslocamento");
-		arqAsm.println("\tmov dx, " + endTemp + "\t;endereco do temporario");
-		arqAsm.println("\tmov al, 2\t;tamanho do vetor");
+		arqAsm.println("\tmov dx, " + endTemp + "\t ;endereco do temporario");
+		arqAsm.println("\tmov al, 2\t ;tamanho do vetor");
 		arqAsm.println("\tmov DS:[" + endTemp + "], al");
 		arqAsm.println("\tmov ah, 0Ah");
 		arqAsm.println("\tint 21h\r\n");
@@ -280,10 +280,10 @@ public class GeradorCodigo {
 		quebrarLinha();
 		
 		arqAsm.println(";atribuicao da string lida para a variavel");
-		arqAsm.println("\tmov di, " + (endTemp + 2) + "\t;endereco primeiro caractere em temp");
-		arqAsm.println("\tmov si, bx\t;endereco base do char");
+		arqAsm.println("\tmov di, " + (endTemp + 2) + "\t ;endereco primeiro caractere em temp");
+		arqAsm.println("\tmov si, bx\t ;endereco base do char");
 		arqAsm.println("\tmov al, DS:[di]");
-		arqAsm.println("\tmov DS:[si], al\t;salva caractere");
+		arqAsm.println("\tmov DS:[si], al\t ;salva caractere");
 		arqAsm.println(";fim ler do teclado\r\n");
 	}
 	
@@ -294,8 +294,8 @@ public class GeradorCodigo {
 		int rotulo1 = novoRotulo();
 
 		arqAsm.println(";ler do teclado");
-		arqAsm.println("\tmov dx, " + endTemp + "\t;endereco do temporario");
-		arqAsm.println("\tmov al, " + (tamanho+1) + "\t;tamanho do vetor, olhar isso, eu coloquei tamanho + 1");
+		arqAsm.println("\tmov dx, " + endTemp + "\t ;endereco do temporario");
+		arqAsm.println("\tmov al, " + (tamanho+1) + "\t ;tamanho do vetor, olhar isso, eu coloquei tamanho + 1");
 		arqAsm.println("\tmov DS:[" + endTemp + "], al");
 		arqAsm.println("\tmov ah, 0Ah");
 		arqAsm.println("\tint 21h\r\n");
@@ -304,18 +304,18 @@ public class GeradorCodigo {
 
 		arqAsm.println(";atribuicao da string lida para a variavel");
 
-		arqAsm.println("\tmov di, " + (endTemp + 2) + "\t;endereco primeiro caractere em temp");
-		arqAsm.println("\tmov si, " + endereco + "\t;endereco base do vetor");
+		arqAsm.println("\tmov di, " + (endTemp + 2) + "\t ;endereco primeiro caractere em temp");
+		arqAsm.println("\tmov si, " + endereco + "\t ;endereco base do vetor");
 		arqAsm.println("R" + rotulo0 + ":");
 		arqAsm.println("\tmov al, DS:[di]");
-		arqAsm.println("\tcmp al, 13\t;compara com \\r");
+		arqAsm.println("\tcmp al, 13\t ;compara com \\r");
 		arqAsm.println("\tje R" + rotulo1);
-		arqAsm.println("\tmov DS:[si], al\t;salva caractere");
+		arqAsm.println("\tmov DS:[si], al\t ;salva caractere");
 		arqAsm.println("\tadd di,1");
 		arqAsm.println("\tadd si,1");
 		arqAsm.println("\tjmp R" + rotulo0);
 		arqAsm.println("R" + rotulo1 + ":");
-		arqAsm.println("\tmov al, 24h\t;final de string");
+		arqAsm.println("\tmov al, 24h\t ;final de string");
 		arqAsm.println("\tmov DS:[si], al");
 
 		arqAsm.println(";fim ler do teclado\r\n");
@@ -345,7 +345,7 @@ public class GeradorCodigo {
 		if (comentario.length == 0) {
 			arqAsm.println("");
 		} else {
-			arqAsm.println("\t;" + comentario[0]);
+			arqAsm.println("\t ;" + comentario[0]);
 		}
 
 	}
@@ -356,7 +356,7 @@ public class GeradorCodigo {
 		if (comentario.length == 0) {
 			arqAsm.println("");
 		} else {
-			arqAsm.println("\t;" + comentario[0]);
+			arqAsm.println("\t ;" + comentario[0]);
 		}
 	}
 
@@ -367,7 +367,7 @@ public class GeradorCodigo {
 		if (comentario.length == 0) {
 			arqAsm.println("");
 		} else {
-			arqAsm.println("\t;" + comentario[0]);
+			arqAsm.println("\t ;" + comentario[0]);
 		}
 
 	}
@@ -379,7 +379,7 @@ public class GeradorCodigo {
 		if (comentario.length == 0) {
 			arqAsm.println("");
 		} else {
-			arqAsm.println("\t;" + comentario[0]);
+			arqAsm.println("\t ;" + comentario[0]);
 		}
 
 	}
@@ -390,7 +390,7 @@ public class GeradorCodigo {
 		if (comentario.length == 0) {
 			arqAsm.println("");
 		} else {
-			arqAsm.println("\t;" + comentario[0]);
+			arqAsm.println("\t ;" + comentario[0]);
 		}
 	}
 
@@ -400,7 +400,7 @@ public class GeradorCodigo {
 		if (comentario.length == 0) {
 			arqAsm.println("");
 		} else {
-			arqAsm.println("\t;" + comentario[0]);
+			arqAsm.println("\t ;" + comentario[0]);
 		}
 	}
 
@@ -415,7 +415,7 @@ public class GeradorCodigo {
 		if (comentario.length == 0) {
 			arqAsm.println("");
 		} else {
-			arqAsm.println("\t;" + comentario[0]);
+			arqAsm.println("\t ;" + comentario[0]);
 		}
 	}
 	
@@ -426,7 +426,7 @@ public class GeradorCodigo {
 		if (comentario.length == 0) {
 			arqAsm.println("");
 		} else {
-			arqAsm.println("\t;" + comentario[0]);
+			arqAsm.println("\t ;" + comentario[0]);
 		}
 	}
 
@@ -437,7 +437,7 @@ public class GeradorCodigo {
 		if (comentario.length == 0) {
 			arqAsm.println("");
 		} else {
-			arqAsm.println("\t;" + comentario[0]);
+			arqAsm.println("\t ;" + comentario[0]);
 		}
 	}
 	
@@ -448,7 +448,7 @@ public class GeradorCodigo {
 		if (comentario.length == 0) {
 			arqAsm.println("");
 		} else {
-			arqAsm.println("\t;" + comentario[0]);
+			arqAsm.println("\t ;" + comentario[0]);
 		}
 	}
 
@@ -459,7 +459,7 @@ public class GeradorCodigo {
 		if (comentario.length == 0) {
 			arqAsm.println("");
 		} else {
-			arqAsm.println("\t;" + comentario[0]);
+			arqAsm.println("\t ;" + comentario[0]);
 		}
 	}
 	
@@ -470,7 +470,7 @@ public class GeradorCodigo {
 		if (comentario.length == 0) {
 			arqAsm.println("");
 		} else {
-			arqAsm.println("\t;" + comentario[0]);
+			arqAsm.println("\t ;" + comentario[0]);
 		}
 	}
 
@@ -481,7 +481,7 @@ public class GeradorCodigo {
 		if (comentario.length == 0) {
 			arqAsm.println("");
 		} else {
-			arqAsm.println("\t;" + comentario[0]);
+			arqAsm.println("\t ;" + comentario[0]);
 		}
 	}
 	
@@ -491,7 +491,7 @@ public class GeradorCodigo {
 		if (comentario.length == 0) {
 			arqAsm.println("");
 		} else {
-			arqAsm.println("\t;" + comentario[0]);
+			arqAsm.println("\t ;" + comentario[0]);
 		}
 	}
 
@@ -501,7 +501,7 @@ public class GeradorCodigo {
 		if( comentario.length == 0 ){
 			arqAsm.println("");
 		}else{
-			arqAsm.println("\t;"+ comentario[0] );
+			arqAsm.println("\t ;"+ comentario[0] );
 		}
 	}
 
@@ -511,7 +511,7 @@ public class GeradorCodigo {
 		if( comentario.length == 0 ){
 			arqAsm.println("");
 		}else{
-			arqAsm.println( "\t;"+comentario[0] );
+			arqAsm.println( "\t ;"+comentario[0] );
 		}
 	}
 	
@@ -524,12 +524,12 @@ public class GeradorCodigo {
 		arqAsm.print("\tbyte \"" + valor + "\"");
 
 		if (comentario.length > 0) {
-			arqAsm.println("\t;" + comentario[0]);
+			arqAsm.println("\t ;" + comentario[0]);
 		} else {
 			arqAsm.println("");
 		}
 
-		arqAsm.println("dseg ENDS\t; fim seg. dados\r\n");
+		arqAsm.println("dseg ENDS\t ; fim seg. dados\r\n");
 	}
 
 	public void quebrarLinha() {
@@ -555,19 +555,19 @@ public class GeradorCodigo {
 
 			if (var.getTipo() == Tipo.CARACTERE) {
 				endereco = novaVariavel(1);
-				arqAsm.println("\tbyte ?\t;var. char em " + endereco);
+				arqAsm.println("\tbyte ?\t ;var. char em " + endereco);
 			} else {
 				endereco = novaVariavel(2);
-				arqAsm.println("\tsword ?\t;var. int em " + endereco);
+				arqAsm.println("\tsword ?\t ;var. int em " + endereco);
 			}
 		} else {
 
 			if (var.getTipo() == Tipo.CARACTERE) {
 				endereco = novaVariavel(var.getTamanho());
-				arqAsm.println("\tbyte " + var.getTamanho() + " DUP(?)\t;array char em " + endereco);
+				arqAsm.println("\tbyte " + var.getTamanho() + " DUP(?)\t ;array char em " + endereco);
 			} else {
 				endereco = novaVariavel(var.getTamanho() * 2);
-				arqAsm.println("\tsword " + var.getTamanho() + " DUP(?)\t;array int em " + endereco);
+				arqAsm.println("\tsword " + var.getTamanho() + " DUP(?)\t ;array int em " + endereco);
 			}
 		}
 		var.setEndereco( endereco );
@@ -579,10 +579,10 @@ public class GeradorCodigo {
 
 		if (var.getTipo() == Tipo.CARACTERE) {
 			endereco = novaVariavel(1);
-			arqAsm.println("\tbyte '" + (char) valor + "'\t;var. char em " + endereco);
+			arqAsm.println("\tbyte '" + (char) valor + "'\t ;var. char em " + endereco);
 		} else {
 			endereco = novaVariavel(2);
-			arqAsm.println("\tsword " + valor + "\t;var. int em " + endereco);
+			arqAsm.println("\tsword " + valor + "\t ;var. int em " + endereco);
 		}
 		var.setEndereco(endereco);
 	}
@@ -590,7 +590,7 @@ public class GeradorCodigo {
 	public void adicionarVariavel(RegistroLexico var, String valor) {
 		
 		int endereco = novaVariavel(1);
-		arqAsm.println("\tbyte " + valor + "\t;var. char em " + endereco);
+		arqAsm.println("\tbyte " + valor + "\t ;var. char em " + endereco);
 		var.setEndereco(endereco);
 	}
 }
