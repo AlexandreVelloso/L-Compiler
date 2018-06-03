@@ -5,7 +5,7 @@ CONSTANTE -> (5) final id = [+|- (6) ] const (7) ;
 COMANDO ->
            for id (9) <- EXP (10) to EXP¹ (10) [step const (11)] do BLOCO |
            if EXP (12) then BLOCO [else BLOCO] |
-           readln "(" id[ "[" (31) EXP (29) "]" ] (33) ")"; |
+           readln "(" id[ "[" (28) (31) EXP (29) "]" ] (33) ")"; |
            write "(" EXP (13) {,EXP (13) } ")"; |
            writeln "(" EXP (13) { ,EXP (13) } ")"; |
            id <- EXP (14); |
@@ -164,7 +164,7 @@ F    -> "("EXP (24) ")" | not F¹ (25) | const (26) | id (27) [ (28) "[" (31) EX
 
 (28){ indice = true }
 (29){ 
-      se EXP.tipo != inteiro && EXP.tamanho != 0 então
+      se EXP.tipo != inteiro || EXP.tamanho != 0 então
         ERRO
     }
 
@@ -184,6 +184,6 @@ F    -> "("EXP (24) ")" | not F¹ (25) | const (26) | id (27) [ (28) "[" (31) EX
         se id.tipo == relacional então
             ERRO
         senão se id.tipo == inteiro então
-            se id.tamanho != 0 então
+            se indice == false && id.tamanho != 0 então
                 ERRO
     }
