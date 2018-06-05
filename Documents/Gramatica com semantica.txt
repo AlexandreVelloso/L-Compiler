@@ -18,7 +18,9 @@ T    -> F (22) { (*|/|%|and (23) ) F¹ (30) }
 F    -> "("EXP (24) ")" | not F¹ (25) | const (26) | id (27) [ (28) "[" (31) EXP (29) "]" ]
 
 (1){ VARIAVEL.tipo = int }
+
 (2){ VARIAVEL.tipo = char }
+
 (3){ se
         const.val == 0 ||
         (const.val > 2000 && VARIAVEL.tipo == int ) ||
@@ -27,19 +29,25 @@ F    -> "("EXP (24) ")" | not F¹ (25) | const (26) | id (27) [ (28) "[" (31) EX
     senao
         var.tamanho = const.val
     }
+
 (4){ 
      id.tipo = VARIAVEL.tipo
      id.tamanho = 0
      id.classe = variavel }
+
 (5){ id.tamanho = 0
      id.classe = CONSTANTE }
+
 (6){ negar = true }
+
 (7){ se negar == true então
         se const.tipo != inteiro
             ERRO
         senão
             negar valor }
+
 (8){ ATRIBUICAO.id = VARIAVEL.id }
+
 (9){ 
      se nao existe id então
         ERRO
